@@ -16,6 +16,6 @@ void random_vector(nnet_float_t *vector, size_t length, nnet_float_t lower, nnet
 {
 	for(size_t i = 0; i < length; i++)
 	{
-		vector[i] = (rand() / (nnet_float_t)RAND_MAX) * (upper - lower) + lower;
+		vector[i] = 0.0;//(rand() / (nnet_float_t)RAND_MAX) * (upper - lower) + lower;
 	}
 }

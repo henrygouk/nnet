@@ -25,6 +25,7 @@ add_library(
 add_executable(
 	linear
 	tests/linear.c
+	tests/mnist.c
 )
 
 target_link_libraries(

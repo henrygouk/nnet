@@ -41,6 +41,17 @@ void layer_calculate_activations(layer_t *layer)
 
 			break;
 		}
+
+		case LOGISTIC:
+		{
+			for(size_t i = 0; i < layer->num_units; i++)
+			{
+				layer->activations[i] = 1.0 / (1.0 + EXP(-layer->activations[i]));
+				layer->delta_activations[i] = layer->activations[i] * (1.0 - layer->activations[i]);
+			}
+
+			break;
+		}
 	}
 }
 

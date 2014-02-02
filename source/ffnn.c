@@ -54,7 +54,7 @@ void ffnn_train(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels, size
 void ffnn_predict(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels)
 {
 	forward(ffnn, features);
-	memcpy(labels, ffnn->layers[ffnn->num_layers]->activations, ffnn->layers[ffnn->num_layers]->num_units * sizeof(nnet_float_t));
+	memcpy(labels, ffnn->layers[ffnn->num_layers - 1]->activations, ffnn->layers[ffnn->num_layers - 1]->num_units * sizeof(nnet_float_t));
 }
 
 static void forward(ffnn_t *ffnn, nnet_float_t *features)

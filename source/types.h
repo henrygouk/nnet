@@ -5,12 +5,15 @@
 
 #include <fftw3.h>
 
+#define EXP expf
+
 typedef float nnet_float_t;
 
 typedef enum
 {
 	NONE,
-	RECTIFIED
+	RECTIFIED,
+	LOGISTIC
 } activation_function_t;
 
 typedef struct
