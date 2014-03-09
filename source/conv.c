@@ -15,6 +15,7 @@ layer_t *conv_create(size_t num_input_images, size_t input_dims, size_t num_outp
 	layer->num_inputs = num_input_images * input_dims * input_dims;
 	layer->num_units = num_output_images * output_dims * output_dims;
 	layer->num_weights = num_input_images * num_output_images * kernel_dims * kernel_dims + num_output_images;
+	layer->padded = nnet_malloc(kernel_dims * kernel_dims);
 	layer->weights = nnet_malloc(layer->num_weights);
 	layer->gradients = nnet_malloc(layer->num_weights);
 	layer->activations = nnet_malloc(layer->num_units);
@@ -48,6 +49,7 @@ void conv_destroy(layer_t *layer)
 	nnet_free(layer->activations);
 	nnet_free(layer->errors);
 	nnet_free(layer->delta_activations);
+	nnet_free(layer->padded);
 	free(layer);
 }
 
@@ -72,7 +74,7 @@ void conv_forward(layer_t *layer, nnet_float_t *inputs)
 		{
 			convolve_valid(input, layer->input_dims, weights, layer->kernel_dims, output);
 
-			inputs += layer->input_dims * layer->input_dims;
+			input += layer->input_dims * layer->input_dims;
 			weights += layer->kernel_dims * layer->kernel_dims;
 		}
 		
@@ -122,7 +124,9 @@ void conv_calculate_gradients(layer_t *layer, nnet_float_t *inputs)
 
 		for(size_t i = 0; i < layer->num_input_maps; i++)
 		{
-			correlate_valid(inputs + i * input_size, layer->input_dims, errors, layer->output_dims, gradients);
+			memset(layer->padded, 0, sizeof(nnet_float_t) * layer->kernel_dims * layer->kernel_dims);
+			correlate_valid(inputs + i * input_size, layer->input_dims, errors, layer->output_dims, layer->padded);
+			rotate_180(layer->padded, layer->kernel_dims, gradients);
 
 			gradients += kernel_size;
 		}

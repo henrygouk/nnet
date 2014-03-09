@@ -15,7 +15,7 @@ layer_t *fftconv_create(size_t num_input_images, size_t input_dims, size_t num_o
 	layer_t *layer = (layer_t *)malloc(sizeof(layer_t));
 
 	size_t output_dims = input_dims - kernel_dims + 1;
-	size_t padded_dims = pow(2, ceil(log2(input_dims)));
+	size_t padded_dims = input_dims;//pow(2, ceil(log2(input_dims)));
 	size_t fsize = padded_dims * (padded_dims / 2 + 1);
 	layer->num_inputs = num_input_images * input_dims * input_dims;
 	layer->num_units = num_output_images * output_dims * output_dims;
@@ -63,11 +63,11 @@ layer_t *fftconv_create(size_t num_input_images, size_t input_dims, size_t num_o
 	for(size_t i = 0; i < num_input_images * num_output_images; i++)
 	{
 		pad(layer->weights + i * layer->kernel_dims * layer->kernel_dims, layer->kernel_dims, layer->padded, layer->padded_dims);
-		fftwf_execute_dft_r2c(layer->forward, layer->padded, (fftwf_complex *)layer->frequency_kernels + i * layer->frequency_size);
+		fftwf_execute_dft_r2c(layer->forward, layer->padded, (fftwf_complex *)(layer->frequency_kernels + i * layer->frequency_size * 2));
 	}
 
 	layer->vtable = &fftconv_vtable;
-
+	
 	return layer;
 }
 
@@ -84,6 +84,8 @@ void fftconv_destroy(layer_t *layer)
 	nnet_free(layer->padded);
 	nnet_free(layer->frequency_inputs);
 	nnet_free(layer->frequency_errors);
+	fftwf_destroy_plan(layer->forward);
+	fftwf_destroy_plan(layer->backward);
 	free(layer);
 }
 
@@ -101,7 +103,7 @@ void fftconv_forward(layer_t *layer, nnet_float_t *inputs)
 	for(size_t i = 0; i < layer->num_input_maps; i++)
 	{
 		pad(inputs + i * layer->input_dims * layer->input_dims, layer->input_dims, layer->padded, layer->padded_dims);
-		fftwf_execute_dft_r2c(layer->forward, layer->padded, (fftwf_complex *)layer->frequency_inputs + i * layer->frequency_size);
+		fftwf_execute_dft_r2c(layer->forward, layer->padded, (fftwf_complex *)(layer->frequency_inputs + i * layer->frequency_size * 2));
 	}
 
 	//Iterate over each output map
@@ -120,7 +122,7 @@ void fftconv_forward(layer_t *layer, nnet_float_t *inputs)
 		}
 
 		//Add the bias term to the DC component.. faster than doing it in the space domain ;)
-		factivations[0] += biases[u] * (nnet_float_t)(layer->output_dims * layer->output_dims);
+		factivations[0] += biases[u] * (nnet_float_t)(layer->padded_dims * layer->padded_dims);
 
 		//Inverse FFT
 		fftwf_execute_dft_c2r(layer->backward, (fftwf_complex *)factivations, layer->padded);
@@ -133,7 +135,7 @@ void fftconv_forward(layer_t *layer, nnet_float_t *inputs)
 
 		activations += layer->output_dims * layer->output_dims;
 	}
-
+	
 	layer_calculate_activations(layer);
 }
 
@@ -146,8 +148,8 @@ void fftconv_backward(layer_t *layer, nnet_float_t *bperrs)
 
 	for(size_t o = 0; o < layer->num_output_maps; o++)
 	{
-		pad(layer->errors + o * layer->output_dims * layer->output_dims, layer->output_dims, layer->padded, layer->padded_dims);
-		fftwf_execute_dft_r2c(layer->forward, layer->padded, (fftwf_complex *)layer->frequency_errors + o * layer->frequency_size);
+		pad_rotate(layer->errors + o * layer->output_dims * layer->output_dims, layer->output_dims, layer->padded, layer->padded_dims);
+		fftwf_execute_dft_r2c(layer->forward, layer->padded, (fftwf_complex *)(layer->frequency_errors + o * layer->frequency_size * 2));
 	}
 
 	for(size_t i = 0; i < layer->num_input_maps; i++)
@@ -156,7 +158,7 @@ void fftconv_backward(layer_t *layer, nnet_float_t *bperrs)
 
 		for(size_t o = 0; o < layer->num_output_maps; o++)
 		{
-			vector_complex_conj_fma(ftemp, fkernels, ferrors, layer->frequency_size);
+			vector_complex_fma(ftemp, fkernels, ferrors, layer->frequency_size);
 
 			fkernels += layer->frequency_size * 2;
 		}
@@ -194,13 +196,13 @@ void fftconv_calculate_gradients(layer_t *layer, nnet_float_t *inputs)
 		//Calculate the bias gradient
 		bias_gradients[o] += vector_sum(errors, layer->output_dims * layer->output_dims);
 
-		pad(errors, layer->output_dims, layer->padded, layer->padded_dims);
+		pad_rotate(errors, layer->output_dims, layer->padded, layer->padded_dims);
 		fftwf_execute_dft_r2c(layer->forward, layer->padded, (fftwf_complex *)ferrors);
 
 		//Iterate over each input map
 		for(size_t i = 0; i < layer->num_input_maps; i++)
 		{
-			vector_complex_conj_fma(fgradients, ferrors, finputs, layer->frequency_size);
+			vector_complex_fma(fgradients, ferrors, finputs, layer->frequency_size);
 
 			finputs += layer->frequency_size * 2;
 			fgradients += layer->frequency_size * 2;
@@ -224,7 +226,7 @@ void fftconv_update(layer_t *layer, update_rule_t *update_rule)
 		fftwf_execute_dft_c2r(layer->backward, (fftwf_complex *)fgradients, layer->padded);
 
 		//Extract the valid section
-		extract_valid(layer->padded, layer->padded_dims, gradients, layer->kernel_dims, layer->output_dims);
+		extract_valid_rotate(layer->padded, layer->padded_dims, gradients, layer->kernel_dims, layer->output_dims);
 
 		//Set the frequency domain gradients for this kernel to 0
 		memset(fgradients, 0, sizeof(nnet_float_t) * layer->frequency_size * 2);
@@ -242,11 +244,11 @@ void fftconv_update(layer_t *layer, update_rule_t *update_rule)
 		layer->weights[w] -= layer->gradients[w] * update_rule->learning_rate;
 		layer->gradients[w] = 0.0;
 	}
-	
-	//Transform the new FFT kernels back into the frequency domain
+
+ 	//Transform the new FFT kernels back into the frequency domain
 	for(size_t i = 0; i < layer->num_input_maps * layer->num_output_maps; i++)
 	{
 		pad(layer->weights + i * layer->kernel_dims * layer->kernel_dims, layer->kernel_dims, layer->padded, layer->padded_dims);
-		fftwf_execute_dft_r2c(layer->forward, layer->padded, (fftwf_complex *)layer->frequency_kernels + i * layer->frequency_size);
+		fftwf_execute_dft_r2c(layer->forward, layer->padded, (fftwf_complex *)(layer->frequency_kernels + i * layer->frequency_size * 2));
 	}
 }

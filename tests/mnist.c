@@ -15,7 +15,7 @@ nnet_float_t *load_floats(const char *filename, size_t length, size_t offset, in
 
 	for(size_t i = 0; i < length; i++)
 	{
-		data[i] = (nnet_float_t)bytedata[i + 16] * (norm ? (1.0 / 255.0) : 1.0);
+		data[i] = (nnet_float_t)bytedata[i + offset] * (norm ? (1.0 / 255.0) : 1.0);
 	}
 
 	free(bytedata);

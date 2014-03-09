@@ -122,11 +122,66 @@ void test_full_correlation(void)
 	nnet_free(output);
 }
 
+void test_fft_convolve_valid(void)
+{
+	nnet_float_t *image = nnet_malloc(25);
+	nnet_float_t *fimage = nnet_malloc(30);
+	nnet_float_t *kernel = nnet_malloc(25);
+	nnet_float_t *fkernel = nnet_malloc(30);
+	nnet_float_t *result = nnet_malloc(1);
+	nnet_float_t *fresult = nnet_malloc(30);
+
+	fftwf_plan forward = fftwf_plan_dft_r2c_2d(5, 5, image, fimage, FFTW_ESTIMATE);
+	fftwf_plan backward = fftwf_plan_dft_c2r_2d(5, 5, fresult, image, FFTW_ESTIMATE);
+
+	memset(image, 0, sizeof(nnet_float_t) * 25);
+	memset(kernel, 0, sizeof(nnet_float_t) * 25);
+	memset(fresult, 0, sizeof(nnet_float_t) * 30);
+	
+	for(size_t y = 0; y < 3; y++)
+	{
+		for(size_t x = 0; x < 3; x++)
+		{
+			image[y * 5 + x] = y * 3 + x + 1;
+		}
+	}
+	
+	for(size_t y = 0; y < 3; y++)
+	{
+		for(size_t x = 0; x < 3; x++)
+		{
+			kernel[y * 5 + x] = y * 3 + x + 1;
+		}
+	}
+
+	fftwf_execute_dft_r2c(forward, image, fimage);
+	fftwf_execute_dft_r2c(forward, kernel, fkernel);
+
+	vector_complex_fma(fresult, fkernel, fimage, 15);
+
+	fftwf_execute_dft_c2r(backward, fresult, image);
+
+	vector_scale(image, 25, 1.0 / (5.0 * 5.0));
+
+	extract_valid(image, 5, result, 1, 3);
+printf("%f\n", result[0]);
+	for(size_t y = 0; y < 5; y++) {
+		for(size_t x = 0;x < 5; x++){
+			printf("%f ", image[y * 5 + x]);
+		}
+		printf("\n");
+	}
+
+	fftwf_destroy_plan(forward);
+	fftwf_destroy_plan(backward);
+}
+
 int main(int argc, char **argv)
 {
 	test_valid_convolve();
 	test_valid_correlation();
 	test_full_correlation();
+	test_fft_convolve_valid();
 
 	return 0;
 }

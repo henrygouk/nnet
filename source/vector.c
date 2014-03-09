@@ -232,6 +232,19 @@ void pad(nnet_float_t *input, size_t input_dims, nnet_float_t *output, size_t ou
 	}
 }
 
+void pad_rotate(nnet_float_t *input, size_t input_dims, nnet_float_t *output, size_t output_dims)
+{
+	memset(output, 0, sizeof(nnet_float_t) * output_dims * output_dims);
+
+	for(size_t y = 0; y < input_dims; y++)
+	{
+		for(size_t x = 0; x < input_dims; x++)
+		{
+			output[(input_dims - y - 1) * output_dims + input_dims - x - 1] = input[y * input_dims + x];
+		}
+	}
+}
+
 void extract_valid(nnet_float_t *input, size_t input_dims, nnet_float_t *output, size_t output_dims, size_t kernel_dims)
 {
 	size_t offset = kernel_dims - 1;
@@ -241,6 +254,19 @@ void extract_valid(nnet_float_t *input, size_t input_dims, nnet_float_t *output,
 		for(size_t x = 0; x < output_dims; x++)
 		{
 			output[y * output_dims + x] = input[(y + offset) * input_dims + (x + offset)];
+		}
+	}
+}
+
+void extract_valid_rotate(nnet_float_t *input, size_t input_dims, nnet_float_t *output, size_t output_dims, size_t kernel_dims)
+{
+	size_t offset = kernel_dims - 1;
+
+	for(size_t y = 0; y < output_dims; y++)
+	{
+		for(size_t x = 0; x < output_dims; x++)
+		{
+			output[(output_dims - y - 1) * output_dims + output_dims - x - 1] = input[(y + offset) * input_dims + (x + offset)];
 		}
 	}
 }
@@ -321,3 +347,14 @@ void correlate_full(nnet_float_t *image, size_t image_dims, nnet_float_t *kernel
 	}
 }
 
+void rotate_180(nnet_float_t *image, size_t image_dims, nnet_float_t *output)
+{
+	output += image_dims * image_dims;
+
+	for(size_t i = 0; i < image_dims * image_dims; i++)
+	{
+		output--;
+		*output += *image;
+		image++;
+	}
+}
