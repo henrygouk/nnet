@@ -271,6 +271,17 @@ void extract_valid_rotate(nnet_float_t *input, size_t input_dims, nnet_float_t *
 	}
 }
 
+void extract_full_rotate(nnet_float_t *input, size_t input_dims, nnet_float_t *output, size_t output_dims)
+{
+	for(size_t y = 0; y < output_dims; y++)
+	{
+		for(size_t x = 0; x < output_dims; x++)
+		{
+			output[(output_dims - y - 1) * output_dims + (output_dims - x - 1)] = input[y * input_dims + x];
+		}
+	}
+}
+
 void extract_full(nnet_float_t *input, size_t input_dims, nnet_float_t *output, size_t output_dims)
 {
 	for(size_t y = 0; y < output_dims; y++)

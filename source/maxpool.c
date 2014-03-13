@@ -62,8 +62,8 @@ void maxpool_forward(layer_t *layer, nnet_float_t *inputs)
 		{
 			for(size_t x = 0; x < layer->output_dims; x++)
 			{
-				size_t maxind;
-				nnet_float_t maxval = -FLT_MAX;
+				size_t maxind = y * layer->kernel_dims * layer->input_dims + x * layer->kernel_dims;
+				nnet_float_t maxval = inputs[maxind];
 
 				//Iterate over each pixel in the receptive field
 				for(size_t j = 0; j < layer->kernel_dims; j++)
@@ -76,6 +76,7 @@ void maxpool_forward(layer_t *layer, nnet_float_t *inputs)
 						if(inputs[ind] > maxval)
 						{
 							maxind = ind;
+							maxval = inputs[ind];
 						}
 					}
 				}
@@ -87,6 +88,7 @@ void maxpool_forward(layer_t *layer, nnet_float_t *inputs)
 
 		activations += layer->output_dims * layer->output_dims;
 		weights += layer->input_dims * layer->input_dims;
+		inputs += layer->input_dims * layer->input_dims;
 	}
 }
 
@@ -97,15 +99,15 @@ void maxpool_backward(layer_t *layer, nnet_float_t *bperrs)
 	
 	for(size_t m = 0; m < layer->num_output_maps; m++)
 	{
-		for(size_t y = 0; y < layer->input_dims; y++)
+		for(size_t y = 0; y < layer->output_dims; y++)
 		{
-			for(size_t x = 0; x < layer->input_dims; x++)
+			for(size_t x = 0; x < layer->output_dims; x++)
 			{
-				size_t ind = y * layer->kernel_dims * layer->input_dims + x * layer->kernel_dims;
+				size_t ind = m * layer->input_dims * layer->input_dims + y * layer->kernel_dims * layer->input_dims + x * layer->kernel_dims;
 
-				for(size_t j = 0; j < layer->output_dims; j++)
+				for(size_t j = 0; j < layer->kernel_dims; j++)
 				{
-					for(size_t i = 0; i < layer->output_dims; i++)
+					for(size_t i = 0; i < layer->kernel_dims; i++)
 					{
 						bperrs[ind + j * layer->input_dims + i] = *errs * weights[ind + j * layer->input_dims + i];
 					}
@@ -114,8 +116,6 @@ void maxpool_backward(layer_t *layer, nnet_float_t *bperrs)
 				errs++;
 			}
 		}
-
-		weights += layer->input_dims * layer->input_dims;
 	}
 }
 

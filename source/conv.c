@@ -93,6 +93,7 @@ void conv_backward(layer_t *layer, nnet_float_t *bperrs)
 	for(size_t i = 0; i < layer->num_input_maps; i++)
 	{
 		nnet_float_t *kernels = layer->weights + i * kernel_size;
+		memset(bperrs, 0, input_size * sizeof(nnet_float_t));
 
 		for(size_t o = 0; o < layer->num_output_maps; o++)
 		{

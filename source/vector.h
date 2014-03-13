@@ -14,8 +14,11 @@ void vector_complex_fma(nnet_float_t *accum, nnet_float_t *a, nnet_float_t *b, s
 void vector_complex_conj_fma(nnet_float_t *accum, nnet_float_t *a, nnet_float_t *b, size_t length);
 void vector_scale(nnet_float_t *vector, size_t length, nnet_float_t scalar);
 void pad(nnet_float_t * input, size_t input_dims, nnet_float_t *output, size_t output_dims);
+void pad_rotate(nnet_float_t * input, size_t input_dims, nnet_float_t *output, size_t output_dims);
 void extract_valid(nnet_float_t *input, size_t input_dims, nnet_float_t *output, size_t output_dims, size_t kernel_dims);
 void extract_full(nnet_float_t *input, size_t input_dims, nnet_float_t *output, size_t output_dims);
+void extract_valid_rotate(nnet_float_t *input, size_t input_dims, nnet_float_t *output, size_t output_dims, size_t kernel_dims);
+void extract_full_rotate(nnet_float_t *input, size_t input_dims, nnet_float_t *output, size_t output_dims);
 void convolve_valid(nnet_float_t *image, size_t image_dims, nnet_float_t *kernel, size_t kernel_dims, nnet_float_t *outputs);
 void correlate_valid(nnet_float_t *image, size_t image_dims, nnet_float_t *kernel, size_t kernel_dims, nnet_float_t *output);
 void correlate_full(nnet_float_t *image, size_t image_dims, nnet_float_t *kernel, size_t kernel_dims, nnet_float_t *output);

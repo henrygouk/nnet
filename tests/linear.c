@@ -8,8 +8,6 @@
 
 #include "mnist.h"
 
-void evaluate(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels);
-
 int main(int argc, char **argv)
 {
 	nnet_float_t *features = mnist_training_images(argv[1]);
@@ -23,7 +21,7 @@ int main(int argc, char **argv)
 
 	ffnn_train(ffnn, features, labels, 60000, 1, 1);
 
-	evaluate(ffnn, test_features, test_labels);
+	mnist_evaluate(ffnn, test_features, test_labels);
 
 	ffnn_destroy(ffnn);
 	layer_destroy(layer);
@@ -34,40 +32,4 @@ int main(int argc, char **argv)
 	nnet_free(test_labels);
 }
 
-void evaluate(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels)
-{
-	nnet_float_t *output = nnet_malloc(10);
-	size_t correct = 0;
 
-	for(size_t i = 0; i < 10000; i++)
-	{
-		ffnn_predict(ffnn, features + i * 28 * 28, output);
-
-		size_t output_maxind = 0;
-		nnet_float_t output_maxval = output[0];
-		size_t labels_maxind = 0;
-		nnet_float_t labels_maxval = labels[i * 10];
-
-		for(size_t j = 1; j < 10; j++)
-		{
-			if(output[j] > output_maxval)
-			{
-				output_maxind = j;
-				output_maxval = output[j];
-			}
-
-			if(labels[i * 10 + j] > labels_maxval)
-			{
-				labels_maxind = j;
-				labels_maxval = labels[i * 10 + j];
-			}
-		}
-
-		if(output_maxind == labels_maxind)
-			correct++;
-	}
-
-	printf("%lu/10000 (%f%%) correct\n", correct, (float)correct/100.0);
-
-	nnet_free(output);
-}

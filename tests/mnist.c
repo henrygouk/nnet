@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "../source/core.h"
+#include "../source/ffnn.h"
 #include "../source/types.h"
 
 nnet_float_t *load_floats(const char *filename, size_t length, size_t offset, int norm)
@@ -66,4 +67,42 @@ nnet_float_t *mnist_testing_labels(const char *filename)
 	nnet_free(labels);
 
 	return ret;
+}
+
+void mnist_evaluate(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels)
+{
+	nnet_float_t *output = nnet_malloc(10);
+	size_t correct = 0;
+
+	for(size_t i = 0; i < 10000; i++)
+	{
+		ffnn_predict(ffnn, features + i * 28 * 28, output);
+
+		size_t output_maxind = 0;
+		nnet_float_t output_maxval = output[0];
+		size_t labels_maxind = 0;
+		nnet_float_t labels_maxval = labels[i * 10];
+
+		for(size_t j = 1; j < 10; j++)
+		{
+			if(output[j] > output_maxval)
+			{
+				output_maxind = j;
+				output_maxval = output[j];
+			}
+
+			if(labels[i * 10 + j] > labels_maxval)
+			{
+				labels_maxind = j;
+				labels_maxval = labels[i * 10 + j];
+			}
+		}
+
+		if(output_maxind == labels_maxind)
+			correct++;
+	}
+
+	printf("%lu/10000 (%f%%) correct\n", correct, (float)correct/100.0);
+
+	nnet_free(output);
 }

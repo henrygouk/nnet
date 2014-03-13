@@ -15,7 +15,7 @@ layer_t *fftconv_create(size_t num_input_images, size_t input_dims, size_t num_o
 	layer_t *layer = (layer_t *)malloc(sizeof(layer_t));
 
 	size_t output_dims = input_dims - kernel_dims + 1;
-	size_t padded_dims = input_dims;//pow(2, ceil(log2(input_dims)));
+	size_t padded_dims = pow(2, ceil(log2(input_dims)));
 	size_t fsize = padded_dims * (padded_dims / 2 + 1);
 	layer->num_inputs = num_input_images * input_dims * input_dims;
 	layer->num_units = num_output_images * output_dims * output_dims;
@@ -155,24 +155,24 @@ void fftconv_backward(layer_t *layer, nnet_float_t *bperrs)
 	for(size_t i = 0; i < layer->num_input_maps; i++)
 	{
 		memset(ftemp, 0, sizeof(nnet_float_t) * layer->frequency_size * 2);
+		fkernels = layer->frequency_kernels + i * layer->frequency_size * 2;
 
 		for(size_t o = 0; o < layer->num_output_maps; o++)
 		{
-			vector_complex_fma(ftemp, fkernels, ferrors, layer->frequency_size);
+			vector_complex_fma(ftemp, fkernels, ferrors + o * layer->frequency_size * 2, layer->frequency_size);
 
-			fkernels += layer->frequency_size * 2;
+			fkernels += layer->num_input_maps * layer->frequency_size * 2;
 		}
 
 		//Inverse FFT
 		fftwf_execute_dft_c2r(layer->backward, (fftwf_complex *)ftemp, layer->padded);
 
 		//Extract the required region
-		extract_full(layer->padded, layer->padded_dims, bperrs, layer->input_dims);
+		extract_full_rotate(layer->padded, layer->padded_dims, bperrs, layer->input_dims);
 
 		//Normalise the inverse FFT
 		vector_scale(bperrs, layer->input_dims * layer->input_dims, norm);
 
-		ferrors += layer->frequency_size * 2;
 		bperrs += layer->input_dims * layer->input_dims;
 	}
 }
@@ -252,3 +252,4 @@ void fftconv_update(layer_t *layer, update_rule_t *update_rule)
 		fftwf_execute_dft_r2c(layer->forward, layer->padded, (fftwf_complex *)(layer->frequency_kernels + i * layer->frequency_size * 2));
 	}
 }
+

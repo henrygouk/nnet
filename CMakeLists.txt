@@ -23,6 +23,19 @@ add_library(
 )
 
 add_executable(
+	mnist_cnn
+	tests/mnist_cnn.c
+	tests/mnist.c
+)
+
+target_link_libraries(
+	mnist_cnn
+	nnet
+	fftw3f
+	m
+)
+
+add_executable(
 	linear
 	tests/linear.c
 	tests/mnist.c
