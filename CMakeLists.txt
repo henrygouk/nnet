@@ -8,7 +8,7 @@ if(ENABLE_AVX)
 	add_definitions(-DHAVE_AVX -mavx)
 endif()
 
-add_definitions(-g)
+add_definitions(-g -O3)
 
 add_library(
 	nnet
@@ -19,6 +19,7 @@ add_library(
 	source/full.c
 	source/layer.c
 	source/maxpool.c
+	source/update.c
 	source/vector.c
 )
 
@@ -36,13 +37,26 @@ target_link_libraries(
 )
 
 add_executable(
-	linear
-	tests/linear.c
+	mnist_mlp
+	tests/mnist_mlp.c
 	tests/mnist.c
 )
 
 target_link_libraries(
-	linear
+	mnist_mlp
+	nnet
+	fftw3f
+	m
+)
+
+add_executable(
+	mnist_linear
+	tests/mnist_linear.c
+	tests/mnist.c
+)
+
+target_link_libraries(
+	mnist_linear
 	nnet
 	fftw3f
 	m

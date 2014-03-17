@@ -131,8 +131,8 @@ void test_fft_convolve_valid(void)
 	nnet_float_t *result = nnet_malloc(1);
 	nnet_float_t *fresult = nnet_malloc(30);
 
-	fftwf_plan forward = fftwf_plan_dft_r2c_2d(5, 5, image, fimage, FFTW_ESTIMATE);
-	fftwf_plan backward = fftwf_plan_dft_c2r_2d(5, 5, fresult, image, FFTW_ESTIMATE);
+	fftwf_plan forward = fftwf_plan_dft_r2c_2d(5, 5, image, (fftwf_complex *)fimage, FFTW_ESTIMATE);
+	fftwf_plan backward = fftwf_plan_dft_c2r_2d(5, 5, (fftwf_complex *)fresult, image, FFTW_ESTIMATE);
 
 	memset(image, 0, sizeof(nnet_float_t) * 25);
 	memset(kernel, 0, sizeof(nnet_float_t) * 25);
@@ -154,12 +154,12 @@ void test_fft_convolve_valid(void)
 		}
 	}
 
-	fftwf_execute_dft_r2c(forward, image, fimage);
-	fftwf_execute_dft_r2c(forward, kernel, fkernel);
+	fftwf_execute_dft_r2c(forward, image, (fftwf_complex *)fimage);
+	fftwf_execute_dft_r2c(forward, kernel, (fftwf_complex *)fkernel);
 
 	vector_complex_fma(fresult, fkernel, fimage, 15);
 
-	fftwf_execute_dft_c2r(backward, fresult, image);
+	fftwf_execute_dft_c2r(backward, (fftwf_complex *)fresult, image);
 
 	vector_scale(image, 25, 1.0 / (5.0 * 5.0));
 

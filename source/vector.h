@@ -22,5 +22,6 @@ void extract_full_rotate(nnet_float_t *input, size_t input_dims, nnet_float_t *o
 void convolve_valid(nnet_float_t *image, size_t image_dims, nnet_float_t *kernel, size_t kernel_dims, nnet_float_t *outputs);
 void correlate_valid(nnet_float_t *image, size_t image_dims, nnet_float_t *kernel, size_t kernel_dims, nnet_float_t *output);
 void correlate_full(nnet_float_t *image, size_t image_dims, nnet_float_t *kernel, size_t kernel_dims, nnet_float_t *output);
+void rotate_180(nnet_float_t *input, size_t dims, nnet_float_t *output);
 
 #endif
