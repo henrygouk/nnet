@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 
 	printf("Starting MNIST test...\n");
 
-	for(size_t i = 0; i < 30; i++)
+	for(size_t i = 0; i < 1; i++)
 	{
 		ffnn_train(ffnn, features, labels, 60000, 1, 100);
 
