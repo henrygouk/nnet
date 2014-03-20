@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 	layers[0]->update_rule = update_rule;
 	layers[1]->update_rule = update_rule;
 
-	ffnn_t *ffnn = ffnn_create(layers, 2);
+	ffnn_t *ffnn = ffnn_create(layers, 2, SQUARED_ERROR);
 
 	for(size_t i = 0; i < 10; i++)
 	{

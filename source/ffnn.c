@@ -6,9 +6,9 @@
 static void forward(ffnn_t *ffnn, nnet_float_t *features);
 static void backward(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels);
 static void update(ffnn_t *ffnn);
-static void calculate_errors(layer_t *layer, nnet_float_t *labels);
+static void calculate_errors(ffnn_t *ffnn, layer_t *layer, nnet_float_t *labels);
 
-ffnn_t *ffnn_create(layer_t **layers, size_t num_layers)
+ffnn_t *ffnn_create(layer_t **layers, size_t num_layers, loss_function_t loss_function)
 {
 	if(num_layers == 0)
 	{
@@ -23,6 +23,7 @@ ffnn_t *ffnn_create(layer_t **layers, size_t num_layers)
 	ffnn->num_inputs = layers[0]->num_inputs;
 	ffnn->num_outputs = layers[num_layers - 1]->num_units;
 	ffnn->num_layers = num_layers;
+	ffnn->loss_function = loss_function;
 
 	return ffnn;
 }
@@ -75,7 +76,7 @@ static void forward(ffnn_t *ffnn, nnet_float_t *features)
 
 static void backward(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels)
 {
-	calculate_errors(ffnn->layers[ffnn->num_layers - 1], labels);
+	calculate_errors(ffnn, ffnn->layers[ffnn->num_layers - 1], labels);
 	
 	for(size_t l = ffnn->num_layers - 1; l > 0; l--)
 	{
@@ -95,10 +96,19 @@ static void update(ffnn_t *ffnn)
 	}
 }
 
-void calculate_errors(layer_t *layer, nnet_float_t *labels)
+void calculate_errors(ffnn_t *ffnn, layer_t *layer, nnet_float_t *labels)
 {
-	for(size_t u = 0; u < layer->num_units; u++)
+	switch(ffnn->loss_function)
 	{
-		layer->errors[u] = layer->activations[u] - labels[u];
+		case SQUARED_ERROR:
+			for(size_t u = 0; u < layer->num_units; u++)
+			{
+				layer->errors[u] = layer->activations[u] - labels[u];
+			}
+
+			break;
+
+		default:
+			break;
 	}
 }

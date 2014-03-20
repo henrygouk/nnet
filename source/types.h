@@ -18,8 +18,14 @@ typedef enum
 {
 	NONE,
 	RECTIFIED,
-	LOGISTIC
+	LOGISTIC,
+	SOFTMAX
 } activation_function_t;
+
+typedef enum
+{
+	SQUARED_ERROR
+} loss_function_t;
 
 typedef struct
 {

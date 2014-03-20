@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 	layers[2] = fftconv_create(32, 12, 32, 5, RECTIFIED);
 	layers[3] = maxpool_create(32, 8, 2);
 	layers[4] = full_create(32 * 4 * 4, 100, RECTIFIED);
-	layers[5] = full_create(100, 10, LOGISTIC);
+	layers[5] = full_create(100, 10, SOFTMAX);
 
 	update_rule_t *update_rule = (update_rule_t *)malloc(sizeof(update_rule_t));
 	update_rule->algorithm = SGD | MOMENTUM;
@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 
 	update_rule_t *full_update_rule = (update_rule_t *)malloc(sizeof(update_rule_t));
 	full_update_rule->algorithm = SGD | MOMENTUM;
-	full_update_rule->learning_rate = 0.02;
+	full_update_rule->learning_rate = 0.01;
 	full_update_rule->momentum_rate = 0.9;
 
 	layers[0]->update_rule = update_rule;
@@ -39,15 +39,18 @@ int main(int argc, char **argv)
 	layers[4]->update_rule = full_update_rule;
 	layers[5]->update_rule = full_update_rule;
 
-	ffnn_t *ffnn = ffnn_create(layers, 6);
+	ffnn_t *ffnn = ffnn_create(layers, 6, SQUARED_ERROR);
 
 	printf("Starting MNIST test...\n");
 
-	for(size_t i = 0; i < 10; i++)
+	for(size_t i = 0; i < 30; i++)
 	{
 		ffnn_train(ffnn, features, labels, 60000, 1, 100);
 
 		mnist_evaluate(ffnn, test_features, test_labels);
+
+		//update_rule->learning_rate *= 0.9;
+		//full_update_rule->learning_rate *= 0.9;
 	}
 
 	ffnn_destroy(ffnn);
