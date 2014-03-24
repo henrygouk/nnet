@@ -43,11 +43,11 @@ int main(int argc, char **argv)
 
 	printf("Starting MNIST test...\n");
 
-	for(size_t i = 0; i < 10; i++)
+	for(size_t i = 0; i < 1; i++)
 	{
 		ffnn_train(ffnn, features, labels, 60000, 1, 100);
 
-		mnist_evaluate(ffnn, test_features, test_labels);
+		//mnist_evaluate(ffnn, test_features, test_labels);
 
 		update_rule->learning_rate *= 0.9;
 		full_update_rule->learning_rate *= 0.9;

@@ -13,6 +13,7 @@
 #define VMUL _mm256_mul_ps
 #define VDIV _mm256_div_ps
 #define VSETZERO _mm256_setzero_ps
+#define VSET1 _mm256_set1_ps
 #define VSET _mm256_set_ps
 #define VLOAD _mm256_load_ps
 #define VLOADU _mm256_loadu_ps
@@ -57,6 +58,7 @@ static inline VECTOR VCMUL(VECTOR a, VECTOR b)
 #define VHADD(a) (a)
 #define VSETZERO() (0)
 #define VSET(a) (a)
+#define VSET1(a) (a)
 #define VLOAD(addr) (*(addr))
 #define VLOADU(addr) (*(addr))
 #define VSTORE(addr, a) (*(addr) = a)
@@ -69,7 +71,15 @@ static inline VECTOR VCMUL(VECTOR a, VECTOR b)
 nnet_float_t dot_product(nnet_float_t *vec1, nnet_float_t *vec2, size_t length)
 {
 	nnet_float_t accum = 0;
+	VECTOR vecaccum = VSETZERO();
 	size_t i = 0;
+
+	VECTOR_FOR(i, length)
+	{
+		vecaccum = VADD(vecaccum, VMUL(VLOADU(vec1 + i), VLOADU(vec2 + i)));
+	}
+
+	accum = VHADD(vecaccum);
 
 	for(; i < length; i++)
 	{
@@ -83,6 +93,14 @@ nnet_float_t vector_sum(nnet_float_t *vec, size_t length)
 {
 	size_t i = 0;
 	nnet_float_t res = 0;
+	VECTOR vecres = VSETZERO();
+
+	VECTOR_FOR(i, length)
+	{
+		vecres = VADD(vecres, VLOADU(vec + i));
+	}
+
+	res = VHADD(vecres);
 
 	for(; i < length; i++)
 	{
@@ -105,8 +123,19 @@ void matrix_trans_vector_mul(nnet_float_t *matrix, size_t rows, size_t cols, nne
 	for(size_t c = 0; c < cols; c++)
 	{
 		vecout[c] = 0.0;
+	}
 
-		for(size_t r = 0; r < rows; r++)
+	for(size_t r = 0; r < rows; r++)
+	{
+		size_t c = 0;
+		VECTOR vin = VSET1(vecin[r]);
+
+		VECTOR_FOR(c, cols)
+		{
+			VSTOREU(vecout + c, VADD(VLOADU(vecout + c), VMUL(VLOADU(matrix + r * cols + c), vin)));
+		}
+
+		for(; c < cols; c++)
 		{
 			vecout[c] += matrix[r * cols + c] * vecin[r];
 		}
@@ -127,6 +156,11 @@ void vector_mul(nnet_float_t *vec1, nnet_float_t *vec2, nnet_float_t *output, si
 {
 	size_t i = 0;
 
+	VECTOR_FOR(i, length)
+	{
+		VSTOREU(output + i, VMUL(VLOADU(vec1 + i), VLOADU(vec2 + i)));
+	}
+
 	for(; i < length; i++)
 	{
 		output[i] = vec1[i] * vec2[i];
@@ -136,6 +170,13 @@ void vector_mul(nnet_float_t *vec1, nnet_float_t *vec2, nnet_float_t *output, si
 void vector_scale_accum(nnet_float_t *vec1, nnet_float_t *vec2, nnet_float_t scalar, size_t length)
 {
 	size_t i = 0;
+
+	VECTOR vecscale = VSET1(scalar);
+
+	VECTOR_FOR(i, length)
+	{
+		VSTOREU(vec1 + i, VADD(VLOADU(vec1 + i), VMUL(VLOADU(vec2 + i), vecscale)));
+	}
 
 	for(; i < length; i++)
 	{
@@ -186,6 +227,13 @@ void vector_complex_conj_fma(nnet_float_t *accum, nnet_float_t *a, nnet_float_t 
 void vector_scale(nnet_float_t *vector, size_t length, nnet_float_t scalar)
 {
 	size_t i = 0;
+
+	VECTOR vecscalar = VSET1(scalar);
+
+	VECTOR_FOR(i, length)
+	{
+		VSTOREU(vector + i, VMUL(VLOADU(vector + i), vecscalar));
+	}
 
 	for(; i < length; i++)
 	{
