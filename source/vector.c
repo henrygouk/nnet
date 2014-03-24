@@ -33,16 +33,12 @@ static VECTOR conj_vector;
 
 static inline VECTOR VCMUL(VECTOR a, VECTOR b)
 {
-	__m256 re, im;
-	re = _mm256_shuffle_ps(a,a,_MM_SHUFFLE(2,2,0,0));
-	re = _mm256_mul_ps(re, b);
-
-	im = _mm256_shuffle_ps(a,a,_MM_SHUFFLE(3,3,1,1));
-	b = _mm256_shuffle_ps(b,b,_MM_SHUFFLE(2,3,0,1));
-	im = _mm256_mul_ps(im, b);
-	im = _mm256_xor_ps(im, conj_vector);
-	
-	return _mm256_add_ps(re, im);
+	__m256 b_flip = _mm256_shuffle_ps(b,b,0xB1);
+	__m256 a_im = _mm256_shuffle_ps(a,a,0xF5);
+	__m256 a_re = _mm256_shuffle_ps(a,a,0xA0);
+	__m256 aib = _mm256_mul_ps(a_im, b_flip);
+	__m256 arb = _mm256_mul_ps(a_re, b);
+	return _mm256_addsub_ps(arb, aib);
 }
 
 #else
