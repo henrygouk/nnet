@@ -45,7 +45,7 @@ layer_t *fftconv_create(size_t num_input_images, size_t input_dims, size_t num_o
 
 	//Randomly initialise the weights
 	//TODO: let the user specify the range (also look into using a better distribution)
-	random_vector(layer->weights, layer->num_weights, -0.01, 0.01);
+	random_vector(layer->weights, layer->num_weights, -0.1, 0.1);
 
 	//Set the gradients to 0
 	memset(layer_data->frequency_gradients, 0, sizeof(nnet_float_t) * layer_data->frequency_size * 2 * num_input_images * num_output_images);

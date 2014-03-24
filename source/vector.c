@@ -14,7 +14,6 @@
 #define VDIV _mm256_div_ps
 #define VSETZERO _mm256_setzero_ps
 #define VSET _mm256_set_ps
-#define VSET1 _mm256_set1_ps
 #define VLOAD _mm256_load_ps
 #define VLOADU _mm256_loadu_ps
 #define VSTORE _mm256_store_ps
@@ -22,10 +21,10 @@
 
 static inline nnet_float_t VHADD(VECTOR vec)
 {
-	vec = _mm256_hadd_ps(vec, vec);
-	vec = _mm256_hadd_ps(vec, vec);
-	VECTOR vec2 = _mm256_permute2f128_ps(vec, vec, 0x11);
+	VECTOR vec2 = _mm256_permute2f128_ps(vec, vec, 1);
 	vec = _mm256_add_ps(vec, vec2);
+	vec = _mm256_hadd_ps(vec, vec);
+	vec = _mm256_hadd_ps(vec, vec);
 	return _mm_cvtss_f32(_mm256_castps256_ps128(vec));
 }
 
@@ -58,7 +57,6 @@ static inline VECTOR VCMUL(VECTOR a, VECTOR b)
 #define VHADD(a) (a)
 #define VSETZERO() (0)
 #define VSET(a) (a)
-#define VSET1(a) (a)
 #define VLOAD(addr) (*(addr))
 #define VLOADU(addr) (*(addr))
 #define VSTORE(addr, a) (*(addr) = a)
@@ -71,21 +69,7 @@ static inline VECTOR VCMUL(VECTOR a, VECTOR b)
 nnet_float_t dot_product(nnet_float_t *vec1, nnet_float_t *vec2, size_t length)
 {
 	nnet_float_t accum = 0;
-	VECTOR vecaccum = VSETZERO();
 	size_t i = 0;
-	nnet_float_t arr[VECTOR_LENGTH];
-
-	VECTOR_FOR(i, length)
-	{
-		vecaccum += VADD(vecaccum, VMUL(VLOADU(vec1 + i), VLOADU(vec2 + i)));
-	}
-
-	accum = VHADD(vecaccum);
-
-	for(size_t j = 0; j < VECTOR_LENGTH; j++)
-	{
-		accum += arr[j];
-	}
 
 	for(; i < length; i++)
 	{
@@ -121,19 +105,8 @@ void matrix_trans_vector_mul(nnet_float_t *matrix, size_t rows, size_t cols, nne
 	for(size_t c = 0; c < cols; c++)
 	{
 		vecout[c] = 0.0;
-	}
 
-	for(size_t r = 0; r < rows; r++)
-	{
-		size_t c = 0;
-		VECTOR rvec = VSET1(vecin[r]);
-
-		VECTOR_FOR(c, cols)
-		{
-			VSTOREU(vecout + c, VADD(VLOADU(vecout + c), VMUL(VLOADU(matrix + r * cols + c), rvec)));
-		}
-
-		for(; c < cols; c++)
+		for(size_t r = 0; r < rows; r++)
 		{
 			vecout[c] += matrix[r * cols + c] * vecin[r];
 		}
@@ -144,11 +117,6 @@ void vector_accum(nnet_float_t *vec1, nnet_float_t *vec2, size_t length)
 {
 	size_t i = 0;
 
-	VECTOR_FOR(i, length)
-	{
-		VSTOREU(vec1 + i, VADD(VLOADU(vec1 + i), VLOADU(vec2 + i)));
-	}
-
 	for(; i < length; i++)
 	{
 		vec1[i] += vec2[i];
@@ -158,11 +126,6 @@ void vector_accum(nnet_float_t *vec1, nnet_float_t *vec2, size_t length)
 void vector_mul(nnet_float_t *vec1, nnet_float_t *vec2, nnet_float_t *output, size_t length)
 {
 	size_t i = 0;
-
-	VECTOR_FOR(i, length)
-	{
-		VSTOREU(output + i, VMUL(VLOADU(vec1 + i), VLOADU(vec2 + i)));
-	}
 
 	for(; i < length; i++)
 	{
