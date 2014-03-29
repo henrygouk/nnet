@@ -25,12 +25,14 @@ add_library(
 
 add_executable(
 	mnist_cnn
-	tests/mnist_cnn.c
-	tests/mnist.c
+	util/mnist_cnn.c
+	util/mnist.c
+	util/visualise.c
 )
 
 target_link_libraries(
 	mnist_cnn
+	SDL
 	nnet
 	fftw3f
 	m
@@ -38,8 +40,8 @@ target_link_libraries(
 
 add_executable(
 	mnist_mlp
-	tests/mnist_mlp.c
-	tests/mnist.c
+	util/mnist_mlp.c
+	util/mnist.c
 )
 
 target_link_libraries(
@@ -51,12 +53,26 @@ target_link_libraries(
 
 add_executable(
 	mnist_linear
-	tests/mnist_linear.c
-	tests/mnist.c
+	util/mnist_linear.c
+	util/mnist.c
 )
 
 target_link_libraries(
 	mnist_linear
+	nnet
+	fftw3f
+	m
+)
+
+add_executable(
+	cifar10_cnn
+	util/cifar10_cnn.c
+	util/cifar10.c
+	util/mnist.c
+)
+
+target_link_libraries(
+	cifar10_cnn
 	nnet
 	fftw3f
 	m
@@ -64,7 +80,7 @@ target_link_libraries(
 
 add_executable(
 	vector
-	tests/vector.c
+	util/vector.c
 )
 
 target_link_libraries(

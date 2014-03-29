@@ -11,7 +11,7 @@
 
 layer_vtable_t fftconv_vtable;
 
-layer_t *fftconv_create(size_t num_input_images, size_t input_dims, size_t num_output_images, size_t kernel_dims, activation_function_t func)
+layer_t *fftconv_create(size_t num_input_images, size_t input_dims, size_t num_output_images, size_t kernel_dims, activation_function_t func, nnet_float_t weight_size)
 {
 	layer_t *layer = (layer_t *)malloc(sizeof(layer_t));
 	fftconv_layer_data_t *layer_data = (fftconv_layer_data_t *)malloc(sizeof(fftconv_layer_data_t));
@@ -45,7 +45,7 @@ layer_t *fftconv_create(size_t num_input_images, size_t input_dims, size_t num_o
 
 	//Randomly initialise the weights
 	//TODO: let the user specify the range (also look into using a better distribution)
-	random_vector(layer->weights, layer->num_weights, -0.1, 0.1);
+	random_vector(layer->weights, layer->num_weights, -weight_size, weight_size);
 
 	//Set the gradients to 0
 	memset(layer_data->frequency_gradients, 0, sizeof(nnet_float_t) * layer_data->frequency_size * 2 * num_input_images * num_output_images);

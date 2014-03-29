@@ -69,12 +69,12 @@ nnet_float_t *mnist_testing_labels(const char *filename)
 	return ret;
 }
 
-void mnist_evaluate(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels)
+nnet_float_t mnist_evaluate(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels, size_t count)
 {
 	nnet_float_t *output = nnet_malloc(10);
 	size_t correct = 0;
 
-	for(size_t i = 0; i < 10000; i++)
+	for(size_t i = 0; i < count; i++)
 	{
 		ffnn_predict(ffnn, features + i * 28 * 28, output);
 
@@ -102,7 +102,7 @@ void mnist_evaluate(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels)
 			correct++;
 	}
 
-	printf("%lu/10000 (%f%%) correct\n", correct, (float)correct/100.0);
-
 	nnet_free(output);
+
+	return (nnet_float_t)correct / (nnet_float_t)count;
 }

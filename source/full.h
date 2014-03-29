@@ -9,7 +9,7 @@ typedef struct
 	activation_function_t activation_function;
 } full_layer_data_t;
 
-layer_t *full_create(size_t num_inputs, size_t num_units, activation_function_t func);
+layer_t *full_create(size_t num_inputs, size_t num_units, activation_function_t func, nnet_float_t weight_size);
 void full_destroy(layer_t *layer);
 void full_forward(layer_t *layer, nnet_float_t *inputs);
 void full_backward(layer_t *layer, nnet_float_t *bperrs);

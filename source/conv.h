@@ -15,7 +15,7 @@ typedef struct
 	activation_function_t activation_function;
 } conv_layer_data_t;
 
-layer_t *conv_create(size_t num_input_images, size_t input_dims, size_t num_output_images, size_t kernel_dims, activation_function_t func);
+layer_t *conv_create(size_t num_input_images, size_t input_dims, size_t num_output_images, size_t kernel_dims, activation_function_t func, nnet_float_t weight_size);
 void conv_destroy(layer_t *layer);
 void conv_forward(layer_t *layer, nnet_float_t *inputs);
 void conv_backward(layer_t *layer, nnet_float_t *bperrs);

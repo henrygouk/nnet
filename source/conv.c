@@ -7,7 +7,7 @@
 
 layer_vtable_t conv_vtable;
 
-layer_t *conv_create(size_t num_input_images, size_t input_dims, size_t num_output_images, size_t kernel_dims, activation_function_t func)
+layer_t *conv_create(size_t num_input_images, size_t input_dims, size_t num_output_images, size_t kernel_dims, activation_function_t func, nnet_float_t weight_size)
 {
 	layer_t *layer = (layer_t *)malloc(sizeof(layer_t));
 	conv_layer_data_t *layer_data = (conv_layer_data_t *)malloc(sizeof(conv_layer_data_t));
@@ -29,7 +29,7 @@ layer_t *conv_create(size_t num_input_images, size_t input_dims, size_t num_outp
 	layer_data->num_output_maps = num_output_images;
 	layer_data->activation_function = func;
 
-	random_vector(layer->weights, layer->num_weights, -0.01, 0.01);
+	random_vector(layer->weights, layer->num_weights, -weight_size, weight_size);
 	memset(layer->gradients, 0, sizeof(nnet_float_t) * layer->num_weights);
 
 	conv_vtable.destroy = &conv_destroy;

@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 	nnet_float_t *test_features = mnist_testing_images(argv[3]);
 	nnet_float_t *test_labels = mnist_testing_labels(argv[4]);
 
-	layer_t *layer = fftconv_create(1, 28, 10, 28, LOGISTIC);//full_create(28 * 28, 10, LOGISTIC);
+	layer_t *layer = full_create(28 * 28, 10, LOGISTIC, 0.01);
 	ffnn_t *ffnn = ffnn_create(&layer, 1, SQUARED_ERROR);
 
 	layer->update_rule = malloc(sizeof(update_rule_t));
@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 
 	ffnn_train(ffnn, features, labels, 60000, 5, 1);
 
-	mnist_evaluate(ffnn, test_features, test_labels);
+	//mnist_evaluate(ffnn, test_features, test_labels);
 
 	ffnn_destroy(ffnn);
 	layer_destroy(layer);

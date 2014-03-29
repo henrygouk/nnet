@@ -7,7 +7,7 @@
 
 layer_vtable_t full_vtable;
 
-layer_t *full_create(size_t num_inputs, size_t num_units, activation_function_t func)
+layer_t *full_create(size_t num_inputs, size_t num_units, activation_function_t func, nnet_float_t weight_size)
 {
 	layer_t *layer = (layer_t *)malloc(sizeof(layer_t));
 	full_layer_data_t *layer_data = (full_layer_data_t *)malloc(sizeof(full_layer_data_t));
@@ -22,7 +22,7 @@ layer_t *full_create(size_t num_inputs, size_t num_units, activation_function_t 
 	layer_data->delta_activations = nnet_malloc(layer->num_units);
 	layer_data->activation_function = func;
 
-	random_vector(layer->weights, layer->num_weights, -0.1, 0.1);
+	random_vector(layer->weights, layer->num_weights, -weight_size, weight_size);
 	memset(layer->gradients, 0, sizeof(nnet_float_t) * layer->num_weights);
 
 	full_vtable.destroy = &full_destroy;

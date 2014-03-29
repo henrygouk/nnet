@@ -17,8 +17,8 @@ int main(int argc, char **argv)
 	nnet_float_t *test_labels = mnist_testing_labels(argv[4]);
 
 	layer_t *layers[2];
-	layers[0] = full_create(28 * 28, 200, RECTIFIED);
-	layers[1] = full_create(200, 10, LOGISTIC);
+	layers[0] = full_create(28 * 28, 200, RECTIFIED, 0.01);
+	layers[1] = full_create(200, 10, LOGISTIC, 0.01);
 
 	update_rule_t *update_rule = (update_rule_t *)malloc(sizeof(update_rule_t));
 	update_rule->algorithm = SGD | MOMENTUM;
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 	{
 		ffnn_train(ffnn, features, labels, 60000, 1, 100);
 
-		mnist_evaluate(ffnn, test_features, test_labels);
+		//mnist_evaluate(ffnn, test_features, test_labels);
 	}
 
 	ffnn_destroy(ffnn);

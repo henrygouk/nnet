@@ -17,21 +17,21 @@ int main(int argc, char **argv)
 	nnet_float_t *test_labels = mnist_testing_labels(argv[4]);
 	
 	layer_t *layers[6];
-	layers[0] = fftconv_create(1, 28, 32, 5, RECTIFIED);
+	layers[0] = fftconv_create(1, 28, 32, 5, RECTIFIED, 0.1);
 	layers[1] = maxpool_create(32, 24, 2);
-	layers[2] = fftconv_create(32, 12, 32, 5, RECTIFIED);
+	layers[2] = fftconv_create(32, 12, 32, 5, RECTIFIED, 0.1);
 	layers[3] = maxpool_create(32, 8, 2);
-	layers[4] = full_create(32 * 4 * 4, 100, RECTIFIED);
-	layers[5] = full_create(100, 10, LOGISTIC);
+	layers[4] = full_create(32 * 4 * 4, 100, RECTIFIED, 0.1);
+	layers[5] = full_create(100, 10, LOGISTIC, 0.1);
 
 	update_rule_t *update_rule = (update_rule_t *)malloc(sizeof(update_rule_t));
 	update_rule->algorithm = SGD | MOMENTUM;
-	update_rule->learning_rate = 0.0005;
+	update_rule->learning_rate = 0.001;
 	update_rule->momentum_rate = 0.9;
 
 	update_rule_t *full_update_rule = (update_rule_t *)malloc(sizeof(update_rule_t));
 	full_update_rule->algorithm = SGD | MOMENTUM;
-	full_update_rule->learning_rate = 0.0005;
+	full_update_rule->learning_rate = 0.0002;
 	full_update_rule->momentum_rate = 0.9;
 
 	layers[0]->update_rule = update_rule;
@@ -43,14 +43,15 @@ int main(int argc, char **argv)
 
 	printf("Starting MNIST test...\n");
 
-	for(size_t i = 0; i < 20; i++)
+	for(size_t i = 0; i < 50; i++)
 	{
 		ffnn_train(ffnn, features, labels, 60000, 1, 100);
+		nnet_shuffle_instances(features, labels, 60000, 28 * 28, 10);
 
-		mnist_evaluate(ffnn, test_features, test_labels);
+		printf("Epoch: %04lu   Validation: %02.2f%%   Resubstitution: %02.2f%%\n", i + 1, mnist_evaluate(ffnn, test_features, test_labels, 10000) * 100.0, mnist_evaluate(ffnn, features, labels, 60000) * 100.0);
 
-		update_rule->learning_rate *= 0.9;
-		full_update_rule->learning_rate *= 0.9;
+		update_rule->learning_rate *= 0.95;
+		full_update_rule->learning_rate *= 0.95;
 	}
 
 	ffnn_destroy(ffnn);
