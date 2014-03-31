@@ -59,7 +59,7 @@ void conv_destroy(layer_t *layer)
 	free(layer);
 }
 
-void conv_forward(layer_t *layer, nnet_float_t *inputs)
+void conv_forward(layer_t *layer, nnet_float_t *inputs, int train)
 {
 	conv_layer_data_t *layer_data = (conv_layer_data_t *)layer->layer_data;
 	nnet_float_t *output = layer->activations;

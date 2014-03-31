@@ -50,7 +50,7 @@ void maxpool_destroy(layer_t *layer)
 	free(layer);
 }
 
-void maxpool_forward(layer_t *layer, nnet_float_t *inputs)
+void maxpool_forward(layer_t *layer, nnet_float_t *inputs, int train)
 {
 	maxpool_layer_data_t *layer_data = (maxpool_layer_data_t *)layer->layer_data;
 	nnet_float_t *weights = layer->weights;

@@ -8,9 +8,9 @@ void layer_destroy(layer_t *layer)
 	layer->vtable->destroy(layer);
 }
 
-void layer_forward(layer_t *layer, nnet_float_t *features)
+void layer_forward(layer_t *layer, nnet_float_t *features, int train)
 {
-	layer->vtable->forward(layer, features);
+	layer->vtable->forward(layer, features, train);
 }
 
 void layer_calculate_activations(layer_t *layer, nnet_float_t *delta_activations, activation_function_t activation_function)
@@ -124,6 +124,10 @@ void layer_update(layer_t *layer)
 
 		case (SGD | MOMENTUM):
 			update_sgd_momentum(layer);
+			break;
+
+		case (SGD | MOMENTUM | L2_DECAY):
+			update_sgd_momentum_l2_decay(layer);
 			break;
 
 		default:

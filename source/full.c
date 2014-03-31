@@ -51,7 +51,7 @@ void full_destroy(layer_t *layer)
 	free(layer);
 }
 
-void full_forward(layer_t *layer, nnet_float_t *inputs)
+void full_forward(layer_t *layer, nnet_float_t *inputs, int train)
 {
 	full_layer_data_t *layer_data = (full_layer_data_t *)layer->layer_data;
 

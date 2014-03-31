@@ -14,6 +14,7 @@ add_library(
 	nnet
 	source/conv.c
 	source/core.c
+	source/dropout.c
 	source/ffnn.c
 	source/fftconv.c
 	source/full.c

@@ -3,7 +3,7 @@
 
 #include "ffnn.h"
 
-static void forward(ffnn_t *ffnn, nnet_float_t *features);
+static void forward(ffnn_t *ffnn, nnet_float_t *features, int train);
 static void backward(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels);
 static void update(ffnn_t *ffnn);
 static void calculate_errors(ffnn_t *ffnn, layer_t *layer, nnet_float_t *labels);
@@ -48,7 +48,7 @@ void ffnn_train(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels, size
 				}
 			}
 
-			forward(ffnn, features + i * ffnn->num_inputs);
+			forward(ffnn, features + i * ffnn->num_inputs, 1);
 			backward(ffnn, features + i * ffnn->num_inputs, labels + i * ffnn->num_outputs);
 			
 			if((i + 1) % batch_size == 0)
@@ -61,15 +61,15 @@ void ffnn_train(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels, size
 
 void ffnn_predict(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels)
 {
-	forward(ffnn, features);
+	forward(ffnn, features, 0);
 	memcpy(labels, ffnn->layers[ffnn->num_layers - 1]->activations, ffnn->layers[ffnn->num_layers - 1]->num_units * sizeof(nnet_float_t));
 }
 
-static void forward(ffnn_t *ffnn, nnet_float_t *features)
+static void forward(ffnn_t *ffnn, nnet_float_t *features, int train)
 {
 	for(size_t i = 0; i < ffnn->num_layers; i++)
 	{
-		layer_forward(ffnn->layers[i], features);
+		layer_forward(ffnn->layers[i], features, train);
 		features = ffnn->layers[i]->activations;
 	}
 }

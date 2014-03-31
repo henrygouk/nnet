@@ -89,7 +89,7 @@ void fftconv_destroy(layer_t *layer)
 	free(layer);
 }
 
-void fftconv_forward(layer_t *layer, nnet_float_t *inputs)
+void fftconv_forward(layer_t *layer, nnet_float_t *inputs, int train)
 {
 	fftconv_layer_data_t *layer_data = layer->layer_data;
 	nnet_float_t *finputs;
