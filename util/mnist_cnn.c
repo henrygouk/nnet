@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 		ffnn_train(ffnn, features, labels, 60000, 1, 100);
 		nnet_shuffle_instances(features, labels, 60000, 28 * 28, 10);
 
-		printf("Epoch: %04lu   Validation: %02.2f%%   Resubstitution: %02.2f%%\n", i + 1, mnist_evaluate(ffnn, test_features, test_labels, 10000) * 100.0, mnist_evaluate(ffnn, features, labels, 60000) * 100.0);
+		//printf("Epoch: %04lu   Validation: %02.2f%%   Resubstitution: %02.2f%%\n", i + 1, mnist_evaluate(ffnn, test_features, test_labels, 10000) * 100.0, mnist_evaluate(ffnn, features, labels, 60000) * 100.0);
 
 		update_rule->learning_rate *= 0.95;
 		full_update_rule->learning_rate *= 0.95;
