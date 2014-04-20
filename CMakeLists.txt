@@ -28,6 +28,7 @@ add_executable(
 	mnist_cnn
 	util/mnist_cnn.c
 	util/mnist.c
+	util/evaluate.c
 )
 
 target_link_libraries(
@@ -41,6 +42,7 @@ add_executable(
 	mnist_mlp
 	util/mnist_mlp.c
 	util/mnist.c
+	util/evaluate.c
 )
 
 target_link_libraries(
@@ -54,6 +56,7 @@ add_executable(
 	mnist_linear
 	util/mnist_linear.c
 	util/mnist.c
+	util/evaluate.c
 )
 
 target_link_libraries(
@@ -68,6 +71,7 @@ add_executable(
 	util/cifar10_cnn.c
 	util/cifar10.c
 	util/mnist.c
+	util/evaluate.c
 )
 
 target_link_libraries(
