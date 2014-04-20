@@ -25,15 +25,15 @@ int main(int argc, char **argv)
 
 	update_rule_t *update_rule = (update_rule_t *)malloc(sizeof(update_rule_t));
 	update_rule->algorithm = SGD | MOMENTUM | L2_DECAY;
-	update_rule->learning_rate = 0.00001;
+	update_rule->learning_rate = 0.001;
 	update_rule->momentum_rate = 0.9;
-	update_rule->l2_decay_rate = 0.001;
+	update_rule->l2_decay_rate = 0.004;
 
 	update_rule_t *full_update_rule = (update_rule_t *)malloc(sizeof(update_rule_t));
 	full_update_rule->algorithm = SGD | MOMENTUM | L2_DECAY;
-	full_update_rule->learning_rate = 0.00001;
+	full_update_rule->learning_rate = 0.001;
 	full_update_rule->momentum_rate = 0.9;
-	full_update_rule->l2_decay_rate = 0.001;
+	full_update_rule->l2_decay_rate = 0.004;
 
 	layers[0]->update_rule = update_rule;
 	layers[2]->update_rule = update_rule;

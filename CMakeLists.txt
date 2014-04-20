@@ -28,12 +28,10 @@ add_executable(
 	mnist_cnn
 	util/mnist_cnn.c
 	util/mnist.c
-	util/visualise.c
 )
 
 target_link_libraries(
 	mnist_cnn
-	SDL
 	nnet
 	fftw3f
 	m
