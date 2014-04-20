@@ -100,6 +100,8 @@ nnet_float_t mnist_evaluate(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *
 
 		if(output_maxind == labels_maxind)
 			correct++;
+
+		//printf("%lu\t%lu\n", output_maxind, labels_maxind);
 	}
 
 	nnet_free(output);
