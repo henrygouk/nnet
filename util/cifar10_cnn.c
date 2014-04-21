@@ -17,34 +17,33 @@ int main(int argc, char **argv)
 	nnet_float_t *labels;
 	cifar10(argv[1], &features, &labels);
 
-	layer_t *layers[10];
+	layer_t *layers[9];
 	layers[0] = dropout_create(32 * 32 * 3, 0.8);
-	layers[1] = fftconv_create(3, 32, 32, 5, RECTIFIED, 0.02);
-	layers[2] = maxpool_create(32, 28, 2);
-	layers[3] = dropout_create(32 * 14 * 14, 0.8);
-	layers[4] = fftconv_create(32, 14, 32, 5, RECTIFIED, 0.02);
-	layers[5] = maxpool_create(32, 10, 2);
-	layers[6] = dropout_create(32 * 5 * 5, 0.8);
-	layers[7] = full_create(32 * 5 * 5, 100, RECTIFIED, 0.02);
-	layers[8] = dropout_create(100, 0.8);
-	layers[9] = full_create(100, 10, SOFTMAX, 0.02);
+	layers[1] = fftconv_create(3, 32, 64, 5, RECTIFIED, 0.02);
+	layers[2] = maxpool_create(64, 28, 2);
+	layers[3] = fftconv_create(64, 14, 64, 5, RECTIFIED, 0.02);
+	layers[4] = maxpool_create(64, 10, 2);
+	layers[5] = dropout_create(64 * 5 * 5, 0.5);
+	layers[6] = full_create(64 * 5 * 5, 200, RECTIFIED, 0.08);
+	layers[7] = dropout_create(200, 0.5);
+	layers[8] = full_create(100, 10, SOFTMAX, 0.08);
 
 	update_rule_t *update_rule = (update_rule_t *)malloc(sizeof(update_rule_t));
 	update_rule->algorithm = SGD | MOMENTUM;
-	update_rule->learning_rate = 0.0001;
+	update_rule->learning_rate = 0.001;
 	update_rule->momentum_rate = 0.9;
 
 	update_rule_t *full_update_rule = (update_rule_t *)malloc(sizeof(update_rule_t));
 	full_update_rule->algorithm = SGD | MOMENTUM;
-	full_update_rule->learning_rate = 0.0001;
+	full_update_rule->learning_rate = 0.001;
 	full_update_rule->momentum_rate = 0.9;
 
 	layers[1]->update_rule = update_rule;
-	layers[4]->update_rule = update_rule;
-	layers[7]->update_rule = full_update_rule;
-	layers[9]->update_rule = full_update_rule;
+	layers[3]->update_rule = update_rule;
+	layers[6]->update_rule = full_update_rule;
+	layers[8]->update_rule = full_update_rule;
 
-	ffnn_t *ffnn = ffnn_create(layers, 10, SQUARED_ERROR);
+	ffnn_t *ffnn = ffnn_create(layers, 9, SQUARED_ERROR);
 
 	printf("Starting CIFAR test...\n");
 
@@ -54,17 +53,14 @@ int main(int argc, char **argv)
 		ffnn_train(ffnn, features, labels, 50000, 1, 100);
 
 		nnet_float_t valid_eval = evaluate(ffnn, features + 32 * 32 * 3 * 50000, labels + 10 * 50000, 10000, 32 * 32 * 3, 10) * 100.0;
-		nnet_float_t resub_eval = 0.0;//evaluate(ffnn, features, labels, 50000, 32 * 32 * 3, 10) * 100.0;
+		nnet_float_t resub_eval = evaluate(ffnn, features, labels, 50000, 32 * 32 * 3, 10) * 100.0;
 
 		printf("Epoch: %04lu   Validation: %02.2f%%   Resubstitution: %02.2f%%\n", i + 1, valid_eval, resub_eval);
-
-		update_rule->learning_rate *= 0.95;
-		full_update_rule->learning_rate *= 0.95;
 	}
 
 	ffnn_destroy(ffnn);
 
-	for(size_t i = 0; i < 10; i++)
+	for(size_t i = 0; i < 9; i++)
 	{
 		layer_destroy(layers[i]);
 	}
