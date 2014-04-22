@@ -15,6 +15,7 @@ layer_t *dropout_create(size_t num_units, nnet_float_t prob)
 	layer->layer_data = layer_data;
 	layer->activations = nnet_malloc(num_units);
 	layer->errors = nnet_malloc(num_units);
+	memset(layer->errors, 0, sizeof(nnet_float_t) * num_units);
 	layer->num_weights = 0;
 	layer->num_inputs = num_units;
 	layer->num_units = num_units;
