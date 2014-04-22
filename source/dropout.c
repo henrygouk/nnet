@@ -18,6 +18,7 @@ layer_t *dropout_create(size_t num_units, nnet_float_t prob)
 	layer->num_weights = 0;
 	layer->num_inputs = num_units;
 	layer->num_units = num_units;
+	layer->update_rule = 0;
 
 	dropout_vtable.destroy = &dropout_destroy;
 	dropout_vtable.forward = &dropout_forward;
