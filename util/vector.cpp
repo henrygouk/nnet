@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../source/core.h"
-#include "../source/vector.h"
-
+#include <nnet/core.hpp>
+#include <nnet/types.hpp>
+#include <nnet/vector.hpp>
+#include <fftw3.h>
 void test_valid_convolve(void)
 {
 	int passed = 0;
@@ -12,11 +13,11 @@ void test_valid_convolve(void)
 	fflush(stdout);
 
 	//Generate some test stimulus
-	nnet_float_t *input = nnet_malloc(9);
-	nnet_float_t *kernel = nnet_malloc(9);
-	nnet_float_t *output = nnet_malloc(4);
+	nnet_float *input = nnet_malloc(9);
+	nnet_float *kernel = nnet_malloc(9);
+	nnet_float *output = nnet_malloc(4);
 
-	memset(output, 0, sizeof(nnet_float_t) * 4);
+	memset(output, 0, sizeof(nnet_float) * 4);
 
 	for(size_t i = 0; i < 9; i++)
 	{
@@ -51,11 +52,11 @@ void test_valid_correlation(void)
 	fflush(stdout);
 
 	//Generate some test stimulus
-	nnet_float_t *input = nnet_malloc(9);
-	nnet_float_t *kernel = nnet_malloc(9);
-	nnet_float_t *output = nnet_malloc(4);
+	nnet_float *input = nnet_malloc(9);
+	nnet_float *kernel = nnet_malloc(9);
+	nnet_float *output = nnet_malloc(4);
 
-	memset(output, 0, sizeof(nnet_float_t) * 4);
+	memset(output, 0, sizeof(nnet_float) * 4);
 
 	for(size_t i = 0; i < 9; i++)
 	{
@@ -89,12 +90,12 @@ void test_full_correlation(void)
 	printf("test_full_correlate: ");
 	fflush(stdout);
 
-	nnet_float_t *input = nnet_malloc(9);
-	nnet_float_t *kernel = nnet_malloc(9);
-	nnet_float_t *output = nnet_malloc(25);
-	nnet_float_t correct[25] = {9, 26, 50, 38, 21, 42, 94, 154, 106, 54, 90, 186, 285, 186, 90, 54, 106, 154, 94, 42, 21, 38, 50, 26, 9};
+	nnet_float *input = nnet_malloc(9);
+	nnet_float *kernel = nnet_malloc(9);
+	nnet_float *output = nnet_malloc(25);
+	nnet_float correct[25] = {9, 26, 50, 38, 21, 42, 94, 154, 106, 54, 90, 186, 285, 186, 90, 54, 106, 154, 94, 42, 21, 38, 50, 26, 9};
 	
-	memset(output, 0, sizeof(nnet_float_t) * 25);
+	memset(output, 0, sizeof(nnet_float) * 25);
 
 	for(size_t i = 0; i < 9; i++)
 	{
@@ -124,19 +125,19 @@ void test_full_correlation(void)
 
 void test_fft_convolve_valid(void)
 {
-	nnet_float_t *image = nnet_malloc(25);
-	nnet_float_t *fimage = nnet_malloc(30);
-	nnet_float_t *kernel = nnet_malloc(25);
-	nnet_float_t *fkernel = nnet_malloc(30);
-	nnet_float_t *result = nnet_malloc(1);
-	nnet_float_t *fresult = nnet_malloc(30);
+	nnet_float *image = nnet_malloc(25);
+	nnet_float *fimage = nnet_malloc(30);
+	nnet_float *kernel = nnet_malloc(25);
+	nnet_float *fkernel = nnet_malloc(30);
+	nnet_float *result = nnet_malloc(1);
+	nnet_float *fresult = nnet_malloc(30);
 
 	fftwf_plan forward = fftwf_plan_dft_r2c_2d(5, 5, image, (fftwf_complex *)fimage, FFTW_ESTIMATE);
 	fftwf_plan backward = fftwf_plan_dft_c2r_2d(5, 5, (fftwf_complex *)fresult, image, FFTW_ESTIMATE);
 
-	memset(image, 0, sizeof(nnet_float_t) * 25);
-	memset(kernel, 0, sizeof(nnet_float_t) * 25);
-	memset(fresult, 0, sizeof(nnet_float_t) * 30);
+	memset(image, 0, sizeof(nnet_float) * 25);
+	memset(kernel, 0, sizeof(nnet_float) * 25);
+	memset(fresult, 0, sizeof(nnet_float) * 30);
 	
 	for(size_t y = 0; y < 3; y++)
 	{
@@ -163,11 +164,14 @@ void test_fft_convolve_valid(void)
 
 	vector_scale(image, 25, 1.0 / (5.0 * 5.0));
 
-	extract_valid(image, 5, result, 1, 3);
+	size_t inputDims[] = {5, 5};
+	size_t outputDims[] = {3, 3};
+	extract_valid_rotate(2, image, inputDims, result, outputDims);
+
 printf("%f\n", result[0]);
-	for(size_t y = 0; y < 5; y++) {
-		for(size_t x = 0;x < 5; x++){
-			printf("%f ", image[y * 5 + x]);
+	for(size_t y = 0; y < 3; y++) {
+		for(size_t x = 0;x < 3; x++){
+			printf("%f ", result[y * 3 + x]);
 		}
 		printf("\n");
 	}
@@ -176,12 +180,34 @@ printf("%f\n", result[0]);
 	fftwf_destroy_plan(backward);
 }
 
+void test_pad(void)
+{
+	nnet_float *a = nnet_malloc(9);
+	nnet_float *b = nnet_malloc(25);
+	size_t adims[] = {3, 3};
+	size_t bdims[] = {5, 5};
+
+	for(size_t y = 0; y < 3; y++)
+		for(size_t x = 0; x < 3; x++)
+			a[y * 3 + x] = y * 3 + x;
+
+	pad_rotate(2, a, adims, b, bdims);
+
+	for(size_t y = 0; y < 3; y++) {
+		for(size_t x = 0; x < 3; x++){
+			printf("%f ", a[y * 3 + x]);
+		}
+		printf("\n");
+	}	
+}
+
 int main(int argc, char **argv)
 {
 	test_valid_convolve();
 	test_valid_correlation();
 	test_full_correlation();
 	test_fft_convolve_valid();
+	test_pad();
 
 	return 0;
 }

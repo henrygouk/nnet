@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(nnet C)
+project(nnet CXX)
 
 option(ENABLE_AVX "Enables the use of AVX instructions." OFF)
 
@@ -9,86 +9,46 @@ if(ENABLE_AVX)
 endif()
 
 add_definitions(-g -O3)
+add_definitions(-std=c++11)
+
+include_directories(
+	include
+)
 
 add_library(
 	nnet
-	source/conv.c
-	source/core.c
-	source/dropout.c
-	source/ffnn.c
-	source/fftconv.c
-	source/full.c
-	source/layer.c
-	source/maxpool.c
-	source/update.c
-	source/vector.c
+	source/ActivationFunction.cpp
+	source/Convolutional.cpp
+	source/core.cpp
+	source/FeedForward.cpp
+	source/FullyConnected.cpp
+	source/Layer.cpp
+	source/loss.cpp
+	source/MaxPool.cpp
+	source/UpdateRule.cpp
+	source/vector.cpp
 )
 
 add_executable(
-	mnist_cnn
-	util/mnist_cnn.c
-	util/mnist.c
-	util/evaluate.c
+	cifar10cnn
+	util/cifar10.cpp
+	util/cifar10cnn.cpp
+	util/evaluate.cpp
 )
 
 target_link_libraries(
-	mnist_cnn
-	nnet
+	cifar10cnn
 	fftw3f
-	m
-)
-
-add_executable(
-	mnist_mlp
-	util/mnist_mlp.c
-	util/mnist.c
-	util/evaluate.c
-)
-
-target_link_libraries(
-	mnist_mlp
 	nnet
-	fftw3f
-	m
-)
-
-add_executable(
-	mnist_linear
-	util/mnist_linear.c
-	util/mnist.c
-	util/evaluate.c
-)
-
-target_link_libraries(
-	mnist_linear
-	nnet
-	fftw3f
-	m
-)
-
-add_executable(
-	cifar10_cnn
-	util/cifar10_cnn.c
-	util/cifar10.c
-	util/mnist.c
-	util/evaluate.c
-)
-
-target_link_libraries(
-	cifar10_cnn
-	nnet
-	fftw3f
-	m
 )
 
 add_executable(
 	vector
-	util/vector.c
+	util/vector.cpp
 )
 
 target_link_libraries(
 	vector
-	nnet
 	fftw3f
-	m
+	nnet
 )

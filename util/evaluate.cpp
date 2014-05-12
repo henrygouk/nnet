@@ -1,20 +1,19 @@
-#include "../source/core.h"
-#include "../source/ffnn.h"
-#include "../source/types.h"
+#include <nnet/core.hpp>
+#include <nnet/FeedForward.hpp>
 
-nnet_float_t evaluate(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels, size_t count, size_t num_features, size_t num_outputs)
+nnet_float evaluate(FeedForward *ffnn, nnet_float *features, nnet_float *labels, size_t count, size_t num_features, size_t num_outputs)
 {
-	nnet_float_t *output = nnet_malloc(10);
+	nnet_float *output = nnet_malloc(10);
 	size_t correct = 0;
 
 	for(size_t i = 0; i < count; i++)
 	{
-		ffnn_predict(ffnn, features + i * num_features, output);
+		ffnn->predict(features + i * num_features, output);
 
 		size_t output_maxind = 0;
-		nnet_float_t output_maxval = output[0];
+		nnet_float output_maxval = output[0];
 		size_t labels_maxind = 0;
-		nnet_float_t labels_maxval = labels[i * num_outputs];
+		nnet_float labels_maxval = labels[i * num_outputs];
 
 		for(size_t j = 1; j < num_outputs; j++)
 		{
@@ -39,5 +38,5 @@ nnet_float_t evaluate(ffnn_t *ffnn, nnet_float_t *features, nnet_float_t *labels
 
 	nnet_free(output);
 
-	return (nnet_float_t)correct / (nnet_float_t)count;
+	return (nnet_float)correct / (nnet_float)count;
 }
