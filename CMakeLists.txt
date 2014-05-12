@@ -5,7 +5,7 @@ project(nnet CXX)
 option(ENABLE_AVX "Enables the use of AVX instructions." OFF)
 
 if(ENABLE_AVX)
-	add_definitions(-DHAVE_AVX -mavx)
+	add_definitions(-DHAVE_AVX -mavx -mavx2 -mfma)
 endif()
 
 add_definitions(-g -O3)

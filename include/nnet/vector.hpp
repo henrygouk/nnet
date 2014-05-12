@@ -10,7 +10,7 @@ void matrix_trans_vector_mul(nnet_float *matrix, std::size_t rows, std::size_t c
 void vector_accum(nnet_float *vec1, nnet_float *vec2, std::size_t length);
 void vector_mul(nnet_float *vec1, nnet_float *vec2, nnet_float *output, std::size_t length);
 void vector_scale_accum(nnet_float *vec1, const nnet_float *vec2, nnet_float scalar, std::size_t length);
-void vector_complex_fma(nnet_float *accum, nnet_float *a, nnet_float *b, std::size_t length);
+void vector_complex_fma(nnet_float *accum, const nnet_float *a, const nnet_float *b, const std::size_t length);
 void vector_complex_conj_fma(nnet_float *accum, nnet_float *a, nnet_float *b, std::size_t length);
 void vector_scale(nnet_float *vector, std::size_t length, nnet_float scalar);
 void pad(std::size_t rank, const nnet_float *input, const std::size_t *input_dims, nnet_float *output, const std::size_t *output_dims);

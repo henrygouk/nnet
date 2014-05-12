@@ -18,9 +18,9 @@ using namespace std;
 #define VSETZERO _mm256_setzero_ps
 #define VSET1 _mm256_set1_ps
 #define VSET _mm256_set_ps
-#define VLOAD _mm256_load_ps
+#define VLOAD _mm256_loadu_ps
 #define VLOADU _mm256_loadu_ps
-#define VSTORE _mm256_store_ps
+#define VSTORE _mm256_storeu_ps
 #define VSTOREU _mm256_storeu_ps
 
 static inline nnet_float VHADD(VECTOR vec)
@@ -41,6 +41,16 @@ static inline VECTOR VCMUL(VECTOR a, VECTOR b)
 	__m256 a_re = _mm256_shuffle_ps(a,a,0xA0);
 	__m256 aib = _mm256_mul_ps(a_im, b_flip);
 	__m256 arb = _mm256_mul_ps(a_re, b);
+	return _mm256_addsub_ps(arb, aib);
+}
+
+static inline VECTOR VCFMA(VECTOR c, VECTOR a, VECTOR b)
+{
+	__m256 b_flip = _mm256_shuffle_ps(b,b,0xB1);
+	__m256 a_re = _mm256_shuffle_ps(a,a,0xA0);
+	__m256 a_im = _mm256_shuffle_ps(a,a,0xF5);
+	__m256 arb = _mm256_fmadd_ps(a_re, b, c);
+	__m256 aib = _mm256_mul_ps(a_im, b_flip);
 	return _mm256_addsub_ps(arb, aib);
 }
 
@@ -183,17 +193,16 @@ void vector_scale_accum(nnet_float *vec1, const nnet_float *vec2, nnet_float sca
 	}
 }
 
-void vector_complex_fma(nnet_float *accum, nnet_float *a, nnet_float *b, size_t length)
+void vector_complex_fma(nnet_float *accum, const nnet_float *a, const nnet_float *b, const size_t length)
 {
 	size_t i = 0;
 
 #if HAVE_AVX
 
-	conj_vector = VSET(0.0, -0.0, 0.0, -0.0, 0.0, -0.0, 0.0, -0.0);
-
 	for(; i <= length - (VECTOR_LENGTH >> 1) && length >= (VECTOR_LENGTH >> 1); i += (VECTOR_LENGTH >> 1))
 	{
-		VSTORE(accum, VADD(VLOAD(accum), VCMUL(VLOAD(a), VLOAD(b))));
+		//VSTORE(accum, VADD(VLOAD(accum), VCMUL(VLOAD(a), VLOAD(b))));
+		VSTORE(accum, VCFMA(VLOAD(accum), VLOAD(a), VLOAD(b)));
 		accum += VECTOR_LENGTH;
 		a += VECTOR_LENGTH;
 		b += VECTOR_LENGTH;
@@ -240,12 +249,35 @@ void vector_scale(nnet_float *vector, size_t length, nnet_float scalar)
 	}
 }
 
+void tensor_maxpool_1d(const nnet_float *input, const size_t input_dims, const size_t pool_dims, nnet_float *output, size_t *input_indices, size_t index)
+{
+	size_t i = 0;
+	size_t output_dims = input_dims / pool_dims;
+
+	for(size_t p = 0; p < output_dims; p++)
+	{
+		for(size_t j = 0; j < pool_dims; j++, i++)
+		{
+			if(input[i] > output[p])
+			{
+				output[p] = input[i];
+				input_indices[p] = index + i;
+			}
+		}
+	}
+}
+
 void tensor_maxpool_nd(size_t rank, const nnet_float *input, const size_t *input_dims, const size_t *pool_dims, nnet_float *output, size_t *input_indices, size_t index)
 {
 	size_t input_volume = 1;
 	size_t output_volume = 1;
 
-	if(rank == 0)
+	if(rank == 1)
+	{
+		tensor_maxpool_1d(input, input_dims[0], pool_dims[0], output, input_indices, index);
+		return;
+	}
+	else if(rank == 0)
 	{
 		if(*output < *input)
 		{
@@ -298,13 +330,28 @@ void pad(size_t rank, const nnet_float *input, const size_t *input_dims, nnet_fl
 	memset(output + i * output_volume, 0, sizeof(nnet_float) * output_volume * (output_dims[0] - input_dims[0]));
 }
 
+void pad_rotate_1d(const nnet_float *input, const size_t input_dims, nnet_float *output, const size_t output_dims)
+{
+	for(size_t i = 0; i < input_dims; i++)
+	{
+		output[i] = input[input_dims - i - 1];
+	}
+
+	memset(output + input_dims, 0, sizeof(nnet_float) * (output_dims - input_dims));
+}
+
 void pad_rotate(size_t rank, const nnet_float *input, const size_t *input_dims, nnet_float *output, const size_t *output_dims)
 {
 	size_t input_volume = 1;
 	size_t output_volume = 1;
 	size_t i;
 
-	if(rank == 0)
+	if(rank == 1)
+	{
+		pad_rotate_1d(input, input_dims[0], output, output_dims[0]);
+		return;
+	}
+	else if(rank == 0)
 	{
 		*output = *input;
 		return;
@@ -324,13 +371,28 @@ void pad_rotate(size_t rank, const nnet_float *input, const size_t *input_dims, 
 	memset(output + i * output_volume, 0, sizeof(nnet_float) * output_volume * (output_dims[0] - input_dims[0]));
 }
 
+void extract_valid_1d(const nnet_float *input, const size_t input_dims, nnet_float *output, const size_t output_dims)
+{
+	const size_t offset = input_dims - output_dims;
+
+	for(size_t i = 0; i < output_dims; i++)
+	{
+		output[i] = input[i + offset];
+	}
+}
+
 void extract_valid(size_t rank, const nnet_float *input, const size_t *input_dims, nnet_float *output, const size_t *output_dims)
 {
 	size_t input_volume = 1;
 	size_t output_volume = 1;
 	size_t i;
 
-	if(rank == 0)
+	if(rank == 1)
+	{
+		extract_valid_1d(input, input_dims[0], output, output_dims[0]);
+		return;
+	}
+	else if(rank == 0)
 	{
 		*output = *input;
 		return;

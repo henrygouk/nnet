@@ -1,3 +1,4 @@
+#include <ctime>
 #include <iostream>
 
 #include <nnet/nnet.hpp>
@@ -38,11 +39,14 @@ int main(int argc, char **argv)
 	nnet_float *features, *labels;
 	cifar10(argv[1], &features, &labels);
 
-	ff->train(features, labels, 40000, 1, 100);
+	for(size_t i = 0; i < 1; i++)
+	{
+		clock_t start = clock();
+		ff->train(features, labels, 40000, 1, 100);
+		clock_t end = clock();
 
-	cout << evaluate(ff, features + 40000 * 32 * 32 * 3, labels + 40000 * 10, 10000, 32 * 32 * 3, 10) << endl;
+		cout << ((end - start) / CLOCKS_PER_SEC) << endl;
 
-	ff->train(features, labels, 40000, 1, 100);
-
-	cout << evaluate(ff, features + 40000 * 32 * 32 * 3, labels + 40000 * 10, 10000, 32 * 32 * 3, 10) << endl;
+		cout << evaluate(ff, features + 40000 * 32 * 32 * 3, labels + 40000 * 10, 10000, 32 * 32 * 3, 10) << endl;
+	}
 }
