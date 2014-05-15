@@ -17,13 +17,14 @@ void pad(std::size_t rank, const nnet_float *input, const std::size_t *input_dim
 void pad_rotate(std::size_t rank, const nnet_float *input, const std::size_t *input_dims, nnet_float *output, const std::size_t *output_dims);
 void extract_valid(std::size_t rank, const nnet_float *input, const std::size_t *input_dims, nnet_float *output, const std::size_t *output_dims);
 void extract_full(nnet_float *input, std::size_t input_dims, nnet_float *output, std::size_t output_dims);
-void extract_valid_rotate(std::size_t rank, const nnet_float *input, const std::size_t *input_dims, nnet_float *output, const std::size_t *output_dims);
+void extract_valid_rotate(std::size_t rank, const nnet_float *input, const std::size_t *input_dims, nnet_float *output, const std::size_t *output_dims, const nnet_float normaliser);
 void extract_full_rotate(std::size_t rank, const nnet_float *input, const std::size_t *input_dims, nnet_float *output, const std::size_t *output_dims);
 void convolve_valid(nnet_float *image, std::size_t image_dims, nnet_float *kernel, std::size_t kernel_dims, nnet_float *outputs);
 void correlate_valid(nnet_float *image, std::size_t image_dims, nnet_float *kernel, std::size_t kernel_dims, nnet_float *output);
 void correlate_full(nnet_float *image, std::size_t image_dims, nnet_float *kernel, std::size_t kernel_dims, nnet_float *output);
 void rotate_180(nnet_float *input, std::size_t dims, nnet_float *output);
 void random_vector(nnet_float *vector, std::size_t length, nnet_float lower, nnet_float upper);
+void random_gaussian_vector(nnet_float *vector, std::size_t length, nnet_float mean, nnet_float stddev);
 void tensor_maxpool_nd(size_t rank, const nnet_float *input, const size_t *input_dims, const size_t *pool_dims, nnet_float *output, size_t *input_indices, size_t index);
 
 #endif

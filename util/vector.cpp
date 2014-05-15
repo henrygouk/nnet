@@ -166,7 +166,7 @@ void test_fft_convolve_valid(void)
 
 	size_t inputDims[] = {5, 5};
 	size_t outputDims[] = {3, 3};
-	extract_valid_rotate(2, image, inputDims, result, outputDims);
+	extract_valid_rotate(2, image, inputDims, result, outputDims, 1.0);
 
 printf("%f\n", result[0]);
 	for(size_t y = 0; y < 3; y++) {

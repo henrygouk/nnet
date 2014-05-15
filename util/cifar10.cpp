@@ -23,7 +23,7 @@ void cifar10(const char *filename, nnet_float **images, nnet_float **labels)
 	nnet_float *lbls = nnet_malloc(60000 * 10);
 	memset(lbls, 0, sizeof(nnet_float) * 60000 * 10);
 
-	fread(buffer, sizeof(unsigned char), 60000 * (32 * 32 * 3 + 1), fd);
+	size_t len = fread(buffer, sizeof(unsigned char), 60000 * (32 * 32 * 3 + 1), fd);
 
 	for(size_t i = 0; i < 60000; i++)
 	{
@@ -32,7 +32,7 @@ void cifar10(const char *filename, nnet_float **images, nnet_float **labels)
 
 		for(size_t j = 0; j < 32 * 32 * 3; j++)
 		{
-			imgs[i * 32 * 32 * 3 + j] = (nnet_float)*buf / 255.0;
+			imgs[i * 32 * 32 * 3 + j] = (nnet_float)*buf;
 			buf++;
 		}
 	}

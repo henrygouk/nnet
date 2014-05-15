@@ -17,16 +17,16 @@ include_directories(
 
 add_library(
 	nnet
-	source/ActivationFunction.cpp
-	source/Convolutional.cpp
-	source/core.cpp
-	source/FeedForward.cpp
-	source/FullyConnected.cpp
-	source/Layer.cpp
-	source/loss.cpp
-	source/MaxPool.cpp
-	source/UpdateRule.cpp
-	source/vector.cpp
+	source/x86/ActivationFunction.cpp
+	source/x86/Convolutional.cpp
+	source/x86/core.cpp
+	source/x86/FeedForward.cpp
+	source/x86/FullyConnected.cpp
+	source/x86/Layer.cpp
+	source/x86/loss.cpp
+	source/x86/MaxPool.cpp
+	source/x86/UpdateRule.cpp
+	source/x86/vector.cpp
 )
 
 add_executable(
@@ -38,8 +38,8 @@ add_executable(
 
 target_link_libraries(
 	cifar10cnn
-	fftw3f
 	nnet
+	fftw3f
 )
 
 add_executable(

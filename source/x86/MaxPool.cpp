@@ -50,7 +50,7 @@ void MaxPool::forward(const nnet_float *features)
 
 	for(size_t c = 0; c < channels; c++)
 	{
-		tensor_maxpool_nd(tensorRank, features, inputDimensions, poolDimensions, output, inputIndices + c * outputVolume, 0);
+		tensor_maxpool_nd(tensorRank, features, inputDimensions, poolDimensions, output, inputIndices + c * outputVolume, c * inputVolume);
 		features += inputVolume;
 		output += outputVolume;
 	}

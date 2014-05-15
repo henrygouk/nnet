@@ -57,10 +57,10 @@ Convolutional::Convolutional(size_t rank, const size_t *inputDims, const size_t 
 void Convolutional::initialise()
 {
 	//Initialise the weights
-	random_vector(weights, numWeights, -initWeight, initWeight);
+	random_gaussian_vector(weights, numWeights, 0.0, initWeight);
 
 	//Initialise the biases
-	random_vector(biases, numBiases, -initWeight, initWeight);
+	random_gaussian_vector(biases, numBiases, 0.0, initWeight);
 
 	int *dims = new int[tensorRank];
 
@@ -69,8 +69,8 @@ void Convolutional::initialise()
 		dims[i] = inputDimensions[i];
 	}
 
-	forwardTransform = fftwf_plan_dft_r2c(tensorRank, dims, padded, (fftwf_complex *)frequencyInputs, FFTW_ESTIMATE);
-	backwardTransform = fftwf_plan_dft_c2r(tensorRank, dims, (fftwf_complex *)frequencyInputs, padded, FFTW_ESTIMATE);
+	forwardTransform = fftwf_plan_dft_r2c(tensorRank, dims, padded, (fftwf_complex *)frequencyInputs, FFTW_EXHAUSTIVE);
+	backwardTransform = fftwf_plan_dft_c2r(tensorRank, dims, (fftwf_complex *)frequencyInputs, padded, FFTW_EXHAUSTIVE);
 
 	delete[] dims;
 
@@ -103,8 +103,8 @@ void Convolutional::endBatch()
 	for(size_t i = 0; i < numInputChannels * numOutputChannels; i++)
 	{
 		fftwf_execute_dft_c2r(backwardTransform, (fftwf_complex *)fdws, padded);
-		extract_valid_rotate(tensorRank, padded, inputDimensions, dws, kernelDimensions);
-		vector_scale(dws, kernelVolume, normaliser);
+		extract_valid_rotate(tensorRank, padded, inputDimensions, dws, kernelDimensions, normaliser);
+		//vector_scale(dws, kernelVolume, normaliser);
 
 		fdws += frequencyVolume;
 		dws += kernelVolume;
@@ -139,13 +139,18 @@ void Convolutional::forward(const nnet_float *features)
 			ffs += frequencyVolume;
 		}
 
-		fas[0] += biases[i] * (nnet_float)inputVolume;
+		//fas[0] += biases[i] * (nnet_float)inputVolume;
 
 		fftwf_execute_dft_c2r(backwardTransform, (fftwf_complex *)fas, padded);
 
 		extract_valid(tensorRank, padded, inputDimensions, as, outputDimensions);
 
 		vector_scale(as, outputVolume, normaliser);
+
+		for(size_t j = 0; j < outputVolume; j++)
+		{
+			as[j] += biases[i];
+		}
 
 		as += outputVolume;
 	}
@@ -218,12 +223,12 @@ void Convolutional::calculateGradients(const nnet_float *features)
 	}
 }
 
-void Convolutional::updateWeights()
+void Convolutional::updateWeights(const unsigned int batchSize)
 {
-	updateRule->updateWeights(this);
+	updateRule->updateWeights(this, batchSize);
 }
 
-void Convolutional::updateBiases()
+void Convolutional::updateBiases(const unsigned int batchSize)
 {
-	updateRule->updateBiases(this);
+	updateRule->updateBiases(this, batchSize);
 }

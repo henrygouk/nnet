@@ -19,10 +19,10 @@ FullyConnected::FullyConnected(size_t inputs, size_t outputs, nnet_float initwei
 void FullyConnected::initialise()
 {
 	//Initialise the weights
-	random_vector(weights, numWeights, -initWeight, initWeight);
+	random_gaussian_vector(weights, numWeights, 0.0, initWeight);
 
 	//Initialise the biases
-	random_vector(biases, numBiases, -initWeight, initWeight);
+	random_gaussian_vector(biases, numBiases, 0.0, initWeight);
 }
 
 void FullyConnected::forward(const nnet_float *features)
@@ -58,12 +58,12 @@ void FullyConnected::calculateGradients(const nnet_float *features)
 	vector_accum(deltaBiases, deltaErrors, numOutputs);
 }
 
-void FullyConnected::updateWeights()
+void FullyConnected::updateWeights(const unsigned int batchSize)
 {
-	updateRule->updateWeights(this);
+	updateRule->updateWeights(this, batchSize);
 }
 
-void FullyConnected::updateBiases()
+void FullyConnected::updateBiases(const unsigned int batchSize)
 {
-	updateRule->updateBiases(this);
+	updateRule->updateBiases(this, batchSize);
 }

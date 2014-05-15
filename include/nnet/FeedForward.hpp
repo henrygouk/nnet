@@ -34,7 +34,7 @@ class FeedForward
 
 		void forward(const nnet_float *features);
 		void backward(const nnet_float *features, const nnet_float *deltaErrors);
-		void update();
+		void update(const unsigned int batchSize);
 };
 
 #endif

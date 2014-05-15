@@ -14,8 +14,8 @@ class FullyConnected : public Layer
 		void forward(const nnet_float *features) override;
 		void backward(nnet_float *bpDeltaErrors) override;
 		void calculateGradients(const nnet_float *features) override;
-		void updateWeights() override;
-		void updateBiases() override;
+		void updateWeights(const unsigned int batchSize) override;
+		void updateBiases(const unsigned int batchSize) override;
 
 	protected:
 		nnet_float initWeight;

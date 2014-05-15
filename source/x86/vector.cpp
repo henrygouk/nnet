@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <random>
 
 #include <nnet/vector.hpp>
 
@@ -249,10 +250,9 @@ void vector_scale(nnet_float *vector, size_t length, nnet_float scalar)
 	}
 }
 
-void tensor_maxpool_1d(const nnet_float *input, const size_t input_dims, const size_t pool_dims, nnet_float *output, size_t *input_indices, size_t index)
+void tensor_maxpool_1d(const nnet_float *input, const size_t input_dims, const size_t pool_dims, nnet_float *output, const size_t output_dims, size_t *input_indices, size_t index)
 {
 	size_t i = 0;
-	size_t output_dims = input_dims / pool_dims;
 
 	for(size_t p = 0; p < output_dims; p++)
 	{
@@ -272,9 +272,25 @@ void tensor_maxpool_nd(size_t rank, const nnet_float *input, const size_t *input
 	size_t input_volume = 1;
 	size_t output_volume = 1;
 
-	if(rank == 1)
+	if(rank == 2)
 	{
-		tensor_maxpool_1d(input, input_dims[0], pool_dims[0], output, input_indices, index);
+		size_t i = 0;
+		const size_t output_dims0 = input_dims[0] / pool_dims[0];
+		const size_t output_dims1 = input_dims[1] / pool_dims[1];
+
+		for(size_t p = 0; p < output_dims0; p++)
+		{
+			for(size_t j = 0; j < pool_dims[0]; j++, i++)
+			{
+				tensor_maxpool_1d(input + i * input_dims[1], input_dims[1], pool_dims[1], output + p * output_dims1, output_dims1, input_indices + p * output_dims1, i * input_dims[1] + index);
+			}
+		}
+
+		return;
+	}
+	else if(rank == 1)
+	{
+		tensor_maxpool_1d(input, input_dims[0], pool_dims[0], output, input_dims[0] / pool_dims[0], input_indices, index);
 		return;
 	}
 	else if(rank == 0)
@@ -412,7 +428,7 @@ void extract_valid(size_t rank, const nnet_float *input, const size_t *input_dim
 	}
 }
 
-void extract_valid_rotate(size_t rank, const nnet_float *input, const size_t *input_dims, nnet_float *output, const size_t *output_dims)
+void extract_valid_rotate(size_t rank, const nnet_float *input, const size_t *input_dims, nnet_float *output, const size_t *output_dims, const nnet_float normaliser)
 {
 	size_t input_volume = 1;
 	size_t output_volume = 1;
@@ -420,7 +436,7 @@ void extract_valid_rotate(size_t rank, const nnet_float *input, const size_t *in
 
 	if(rank == 0)
 	{
-		*output += *input;
+		*output += *input * normaliser;
 		return;
 	}
 
@@ -434,7 +450,7 @@ void extract_valid_rotate(size_t rank, const nnet_float *input, const size_t *in
 
 	for(i = 0; i < output_dims[0]; i++)
 	{
-		extract_valid_rotate(rank - 1, input + (i + offset) * input_volume, input_dims + 1, output + (output_dims[0] - i - 1) * output_volume, output_dims + 1);
+		extract_valid_rotate(rank - 1, input + (i + offset) * input_volume, input_dims + 1, output + (output_dims[0] - i - 1) * output_volume, output_dims + 1, normaliser);
 	}
 }
 
@@ -555,5 +571,16 @@ void random_vector(nnet_float *vector, size_t length, nnet_float lower, nnet_flo
 	for(size_t i = 0; i < length; i++)
 	{
 		vector[i] = (rand() / (nnet_float)RAND_MAX) * (upper - lower) + lower;
+	}
+}
+
+void random_gaussian_vector(nnet_float *vector, size_t length, nnet_float mean, nnet_float stddev)
+{
+	default_random_engine rng;
+	normal_distribution<nnet_float> N(mean, stddev);
+
+	for(size_t i = 0; i < length; i++)
+	{
+		vector[i] = N(rng);
 	}
 }

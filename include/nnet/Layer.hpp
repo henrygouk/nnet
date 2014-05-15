@@ -11,8 +11,8 @@ class Layer
 		virtual void forward(const nnet_float *features) = 0;
 		virtual void backward(nnet_float *bpDeltaErrors) = 0;
 		virtual void calculateGradients(const nnet_float *features) = 0;
-		virtual void updateWeights();
-		virtual void updateBiases();
+		virtual void updateWeights(const unsigned int batchSize);
+		virtual void updateBiases(const unsigned int batchSize);
 		virtual void startBatch();
 		virtual void endBatch();
 		virtual std::size_t weightsSize() const;

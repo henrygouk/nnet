@@ -100,7 +100,7 @@ void FeedForward::train(const nnet_float *features, const nnet_float *labels, co
 
 			for_each(layers.begin(), layers.end(), [] (Layer *l) { l->endBatch(); });
 
-			update();
+			update(batchSize);
 		}
 	}
 }
@@ -135,15 +135,15 @@ void FeedForward::backward(const nnet_float *features, const nnet_float *deltaEr
 	layers[0]->calculateGradients(features);
 }
 
-void FeedForward::update()
+void FeedForward::update(const unsigned int batchSize)
 {
 	for(size_t l = 0; l < layers.size(); l++)
 	{
-		layers[l]->updateWeights();
+		layers[l]->updateWeights(batchSize);
 	}
 
 	for(size_t l = 0; l < layers.size(); l++)
 	{
-		layers[l]->updateBiases();
+		layers[l]->updateBiases(batchSize);
 	}
 }

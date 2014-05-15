@@ -7,12 +7,12 @@ Layer::~Layer()
 
 }
 
-void Layer::updateWeights()
+void Layer::updateWeights(const unsigned int batchSize)
 {
 
 }
 
-void Layer::updateBiases()
+void Layer::updateBiases(const unsigned int batchSize)
 {
 
 }
