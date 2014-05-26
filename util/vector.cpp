@@ -3,7 +3,7 @@
 
 #include <nnet/core.hpp>
 #include <nnet/types.hpp>
-#include <nnet/vector.hpp>
+#include <nnet/x86/vector.hpp>
 #include <fftw3.h>
 void test_valid_convolve(void)
 {

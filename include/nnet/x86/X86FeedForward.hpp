@@ -3,14 +3,15 @@
 
 #include <vector>
 
-#include "Layer.hpp"
-#include "types.hpp"
+#include "X86Layer.hpp"
+#include "X86Loss.hpp"
+#include "../types.hpp"
 
-class FeedForward
+class X86FeedForward
 {
 	public:
-		FeedForward(const std::vector<Layer *> &layervec, LossFunction lf);
-		~FeedForward();
+		X86FeedForward(const std::vector<X86Layer *> &layervec, X86Loss *lf);
+		virtual ~X86FeedForward();
 		void train(const nnet_float *features, const nnet_float *labels, const std::size_t numInstances, std::uint32_t epochs, std::uint32_t batchSize);
 		void predict(const nnet_float *features, nnet_float *labels);
 
@@ -20,9 +21,9 @@ class FeedForward
 		std::size_t numWeights;
 		std::size_t numBiases;
 		std::size_t numActivations;
-		LossFunction lossFunction;
+		X86Loss *lossFunction;
 
-		std::vector<Layer *> layers;
+		std::vector<X86Layer *> layers;
 		nnet_float *hypothesis;
 		nnet_float *weights;
 		nnet_float *deltaWeights;

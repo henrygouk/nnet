@@ -1,8 +1,8 @@
-#include <nnet/UpdateRule.hpp>
+#include "nnet/x86/X86UpdateRule.hpp"
 
 using namespace std;
 
-void SGD::updateWeights(Layer *layer, const unsigned int batchSize)
+void X86SGD::updateWeights(X86Layer *layer, const unsigned int batchSize)
 {
 	nnet_float scalar = 1.0 / (nnet_float)batchSize;
 
@@ -13,7 +13,7 @@ void SGD::updateWeights(Layer *layer, const unsigned int batchSize)
 	}
 }
 
-void SGD::updateBiases(Layer *layer, const unsigned int batchSize)
+void X86SGD::updateBiases(X86Layer *layer, const unsigned int batchSize)
 {
 	nnet_float scalar = learningRate / (nnet_float)batchSize;
 

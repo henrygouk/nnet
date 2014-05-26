@@ -1,13 +1,14 @@
 #include <algorithm>
 #include <cstring>
+#include <iostream>
 
-#include <nnet/core.hpp>
-#include <nnet/FeedForward.hpp>
-#include <nnet/loss.hpp>
+#include "nnet/core.hpp"
+#include "nnet/x86/X86FeedForward.hpp"
+#include "nnet/x86/X86Loss.hpp"
 
 using namespace std;
 
-FeedForward::FeedForward(const vector<Layer *> &layervec, LossFunction lf)
+X86FeedForward::X86FeedForward(const vector<X86Layer *> &layervec, X86Loss *lf)
 {
 	lossFunction = lf;
 
@@ -70,7 +71,7 @@ FeedForward::FeedForward(const vector<Layer *> &layervec, LossFunction lf)
 	hypothesis = layers.back()->activations;
 }
 
-FeedForward::~FeedForward()
+X86FeedForward::~X86FeedForward()
 {
 	nnet_free(weights);
 	nnet_free(deltaWeights);
@@ -81,7 +82,7 @@ FeedForward::~FeedForward()
 	nnet_free(deltaErrors);
 }
 
-void FeedForward::train(const nnet_float *features, const nnet_float *labels, const size_t numInstances, uint32_t epochs, uint32_t batchSize)
+void X86FeedForward::train(const nnet_float *features, const nnet_float *labels, const size_t numInstances, uint32_t epochs, uint32_t batchSize)
 {
 	nnet_float *dErrors = layers.back()->deltaErrors;
 
@@ -89,25 +90,29 @@ void FeedForward::train(const nnet_float *features, const nnet_float *labels, co
 	{
 		for(uint32_t i = 0; i < numInstances; i += batchSize)
 		{
-			for_each(layers.begin(), layers.end(), [] (Layer *l) { l->startBatch(); });
+			for_each(layers.begin(), layers.end(), [] (X86Layer *l) { l->startBatch(); });
 
 			for(uint32_t j = 0; j < batchSize; j++)
 			{
 				forward(features + (i + j) * numFeatures);
-				lossFunction(hypothesis, labels + (i + j) * numLabels, dErrors, numLabels);
+				lossFunction->loss(hypothesis, labels + (i + j) * numLabels, dErrors, numLabels);
 				backward(features + (i + j) * numFeatures, deltaErrors);
 			}
 
-			for_each(layers.begin(), layers.end(), [] (Layer *l) { l->endBatch(); });
+			for_each(layers.begin(), layers.end(), [] (X86Layer *l) { l->endBatch(); });
 
 			update(batchSize);
 		}
 	}
 }
 
-void FeedForward::predict(const nnet_float *features, nnet_float *labels)
+void X86FeedForward::predict(const nnet_float *features, nnet_float *labels)
 {
-	forward(features);
+	for(size_t l = 0; l < layers.size(); l++)
+	{
+		layers[l]->forward(features);
+		features = layers[l]->activations;
+	}
 
 	for(size_t i = 0; i < numLabels; i++)
 	{
@@ -115,16 +120,16 @@ void FeedForward::predict(const nnet_float *features, nnet_float *labels)
 	}
 }
 
-void FeedForward::forward(const nnet_float *features)
+void X86FeedForward::forward(const nnet_float *features)
 {
 	for(size_t l = 0; l < layers.size(); l++)
 	{
-		layers[l]->forward(features);
+		layers[l]->forwardTrain(features);
 		features = layers[l]->activations;
 	}
 }
 
-void FeedForward::backward(const nnet_float *features, const nnet_float *deltaErrors)
+void X86FeedForward::backward(const nnet_float *features, const nnet_float *deltaErrors)
 {
 	for(size_t l = layers.size() - 1; l > 0; l--)
 	{
@@ -135,7 +140,7 @@ void FeedForward::backward(const nnet_float *features, const nnet_float *deltaEr
 	layers[0]->calculateGradients(features);
 }
 
-void FeedForward::update(const unsigned int batchSize)
+void X86FeedForward::update(const unsigned int batchSize)
 {
 	for(size_t l = 0; l < layers.size(); l++)
 	{

@@ -2,7 +2,7 @@
 #include <cstring>
 #include <random>
 
-#include <nnet/vector.hpp>
+#include "nnet/x86/vector.hpp"
 
 using namespace std;
 

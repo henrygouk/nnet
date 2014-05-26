@@ -17,15 +17,16 @@ include_directories(
 
 add_library(
 	nnet
-	source/x86/ActivationFunction.cpp
-	source/x86/Convolutional.cpp
-	source/x86/core.cpp
-	source/x86/FeedForward.cpp
-	source/x86/FullyConnected.cpp
-	source/x86/Layer.cpp
-	source/x86/loss.cpp
-	source/x86/MaxPool.cpp
-	source/x86/UpdateRule.cpp
+	source/core.cpp
+	source/x86/X86ActivationFunction.cpp
+	source/x86/X86Convolutional.cpp
+	source/x86/X86Dropout.cpp
+	source/x86/X86FeedForward.cpp
+	source/x86/X86FullyConnected.cpp
+	source/x86/X86Layer.cpp
+	source/x86/X86Loss.cpp
+	source/x86/X86MaxPool.cpp
+	source/x86/X86UpdateRule.cpp
 	source/x86/vector.cpp
 )
 

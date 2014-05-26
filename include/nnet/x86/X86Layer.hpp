@@ -1,16 +1,17 @@
 #ifndef _LAYER_HPP_
 #define _LAYER_HPP_
 
-#include "types.hpp"
+#include "../types.hpp"
 
-class Layer
+class X86Layer
 {
 	public:
-		virtual ~Layer();
+		virtual ~X86Layer();
 		virtual void initialise() = 0;
+		virtual void forwardTrain(const nnet_float *features);
 		virtual void forward(const nnet_float *features) = 0;
 		virtual void backward(nnet_float *bpDeltaErrors) = 0;
-		virtual void calculateGradients(const nnet_float *features) = 0;
+		virtual void calculateGradients(const nnet_float *features);
 		virtual void updateWeights(const unsigned int batchSize);
 		virtual void updateBiases(const unsigned int batchSize);
 		virtual void startBatch();

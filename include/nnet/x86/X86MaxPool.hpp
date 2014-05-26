@@ -1,16 +1,15 @@
 #ifndef _MAXPOOL_HPP_
 #define _MAXPOOL_HPP_
 
-#include "Layer.hpp"
+#include "X86Layer.hpp"
 
-class MaxPool : public Layer
+class X86MaxPool : public X86Layer
 {
 	public:
-		MaxPool(std::size_t rank, const std::size_t *inputDims, std::size_t chans, const std::size_t *poolDims);
+		X86MaxPool(std::size_t rank, const std::size_t *inputDims, std::size_t chans, const std::size_t *poolDims);
 		void initialise() override;
 		void forward(const nnet_float *features) override;
 		void backward(nnet_float *bpDeltaErrors) override;
-		void calculateGradients(const nnet_float *features) override;
 
 	protected:
 		std::size_t *inputDimensions;

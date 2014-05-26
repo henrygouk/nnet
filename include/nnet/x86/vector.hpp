@@ -1,7 +1,7 @@
 #ifndef _VECTOR_HPP_
 #define _VECTOR_HPP_
 
-#include "types.hpp"
+#include "../types.hpp"
 
 nnet_float dot_product(nnet_float *vec1, nnet_float *vec2, std::size_t length);
 nnet_float vector_sum(nnet_float *vec, std::size_t length);

@@ -1,15 +1,14 @@
 #ifndef _FULLYCONNECTED_HPP_
 #define _FULLYCONNECTED_HPP_
 
-#include "Layer.hpp"
+#include "X86ActivationFunction.hpp"
+#include "X86Layer.hpp"
+#include "X86UpdateRule.hpp"
 
-class ActivationFunction;
-class UpdateRule;
-
-class FullyConnected : public Layer
+class X86FullyConnected : public X86Layer
 {
 	public:
-		FullyConnected(std::size_t inputs, std::size_t outputs, nnet_float initweight, const ActivationFunction *func, UpdateRule *ur);
+		X86FullyConnected(std::size_t inputs, std::size_t outputs, nnet_float initweight, X86ActivationFunction *func, X86UpdateRule *ur);
 		void initialise() override;
 		void forward(const nnet_float *features) override;
 		void backward(nnet_float *bpDeltaErrors) override;
@@ -19,8 +18,8 @@ class FullyConnected : public Layer
 
 	protected:
 		nnet_float initWeight;
-		const ActivationFunction *activationFunction;
-		UpdateRule *updateRule;
+		X86ActivationFunction *activationFunction;
+		X86UpdateRule *updateRule;
 };
 
 #endif

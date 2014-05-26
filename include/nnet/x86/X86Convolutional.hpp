@@ -1,16 +1,16 @@
 #ifndef _CONVOLUTIONAL_HPP_
 #define _CONVOLUTIONAL_HPP_
 
-#include "ActivationFunction.hpp"
-#include "Layer.hpp"
-#include "UpdateRule.hpp"
+#include "X86ActivationFunction.hpp"
+#include "X86Layer.hpp"
+#include "X86UpdateRule.hpp"
 
 #include <fftw3.h>
 
-class Convolutional : public Layer
+class X86Convolutional : public X86Layer
 {
 	public:
-		Convolutional(std::size_t rank, const std::size_t *imageDims, const std::size_t *kernelDims, std::size_t inputs, std::size_t outputs, nnet_float initweight, const ActivationFunction *func, UpdateRule *ur);
+		X86Convolutional(std::size_t rank, const std::size_t *imageDims, const std::size_t *kernelDims, std::size_t inputs, std::size_t outputs, nnet_float initweight, X86ActivationFunction *func, X86UpdateRule *ur);
 		void initialise() override;
 		void startBatch() override;
 		void endBatch() override;
@@ -40,8 +40,8 @@ class Convolutional : public Layer
 		std::size_t *kernelDimensions;
 		std::size_t *outputDimensions;
 		nnet_float initWeight;
-		const ActivationFunction *activationFunction;
-		UpdateRule *updateRule;
+		X86ActivationFunction *activationFunction;
+		X86UpdateRule *updateRule;
 };
 
 #endif
