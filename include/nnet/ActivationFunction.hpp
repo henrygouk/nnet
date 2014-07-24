@@ -1,27 +1,27 @@
 #ifndef _ACTIVATIONFUNCTION_HPP_
 #define _ACTIVATIONFUNCTION_HPP_
 
-#include "../types.hpp"
+#include "types.hpp"
 
-class X86ActivationFunction
+class ActivationFunction
 {
 	public:
 		virtual void operator()(nnet_float *activations, nnet_float *deltaActiations, std::size_t numActivations) const = 0;
 };
 
-class X86Logistic : public X86ActivationFunction
+class Logistic : public ActivationFunction
 {
 	public:
 		void operator()(nnet_float *activations, nnet_float *deltaActiations, std::size_t numActivation) const override;
 };
 
-class X86Softmax : public X86ActivationFunction
+class Softmax : public ActivationFunction
 {
 	public:
 		void operator()(nnet_float *activations, nnet_float *deltaActiations, std::size_t numActivation) const override;
 };
 
-class X86RectifiedLinear : public X86ActivationFunction
+class RectifiedLinear : public ActivationFunction
 {
 	public:
 		void operator()(nnet_float *activations, nnet_float *deltaActiations, std::size_t numActivation) const override;

@@ -47,7 +47,7 @@ void createPatches(nnet_float *src, nnet_float *dst, size_t length)
 	}
 }
 
-nnet_float evaluatePatches(X86FeedForward *ffnn, nnet_float *features, nnet_float *labels, size_t count)
+nnet_float evaluatePatches(FeedForward *ffnn, nnet_float *features, nnet_float *labels, size_t count)
 {
 	size_t xoffsets[] = {0, 8, 4, 0, 8};
 	size_t yoffsets[] = {0, 0, 4, 8, 8};
@@ -106,15 +106,21 @@ nnet_float evaluatePatches(X86FeedForward *ffnn, nnet_float *features, nnet_floa
 
 int main(int argc, char **argv)
 {
-	X86ActivationFunction *rect = new X86RectifiedLinear();
-	X86ActivationFunction *softmax = new X86Softmax();
-	X86SGD *ur = new X86SGD();
-	X86SGD *ur2 = new X86SGD();
+	if(argc < 2)
+	{
+		cerr << "Usage: " << argv[0] << " <cifar10 file>" << endl;
+		return 0;
+	}
+
+	ActivationFunction *rect = new RectifiedLinear();
+	ActivationFunction *softmax = new Softmax();
+	SGD *ur = new SGD();
+	SGD *ur2 = new SGD();
 	ur->learningRate = 0.001;
 	ur->momentumRate = 0.9;
-	ur2->learningRate = 0.001;
+	ur2->learningRate = 0.0001;
 	ur2->momentumRate = 0.9;
-	ur2->l2DecayRate = 0.004;
+	ur2->l2DecayRate = 0.0005;
 
 	size_t l1InputDims[] = {32, 32};
 	size_t l2InputDims[] = {28, 28};
@@ -123,27 +129,27 @@ int main(int argc, char **argv)
 	size_t kernelDims[] = {5, 5};
 	size_t poolDims[] = {2, 2};
 
-	vector<X86Layer *> layers;
-	layers.push_back(new X86Convolutional(2, l1InputDims, kernelDims, 3, 64, 0.0001, rect, ur));
-	layers.push_back(new X86MaxPool(2, l2InputDims, 64, poolDims));
-	layers.push_back(new X86Convolutional(2, l3InputDims, kernelDims, 64, 64, 0.01, rect, ur));
-	layers.push_back(new X86MaxPool(2, l4InputDims, 64, poolDims));
-	layers.push_back(new X86FullyConnected(64 * 5 * 5, 64, 0.01, rect, ur2));
-	layers.push_back(new X86Dropout(64, 0.5));
-	layers.push_back(new X86FullyConnected(64, 64, 0.01, rect, ur));
-	layers.push_back(new X86Dropout(64, 0.5));
-	layers.push_back(new X86FullyConnected(64, 10, 0.01, softmax, ur2));
+	vector<Layer *> layers;
+	layers.push_back(new Convolutional(2, l1InputDims, kernelDims, 3, 64, 0.0001, rect, ur));
+	layers.push_back(new MaxPool(2, l2InputDims, 64, poolDims));
+	layers.push_back(new Convolutional(2, l3InputDims, kernelDims, 64, 64, 0.01, rect, ur));
+	layers.push_back(new MaxPool(2, l4InputDims, 64, poolDims));
+	layers.push_back(new FullyConnected(64 * 5 * 5, 64, 0.01, rect, ur2));
+	//layers.push_back(new Dropout(128, 0.5));
+	layers.push_back(new FullyConnected(64, 64, 0.01, rect, ur2));
+	//layers.push_back(new Dropout(128, 0.5));
+	layers.push_back(new FullyConnected(64, 10, 0.01, softmax, ur2));
 
-	X86FeedForward *ff = new X86FeedForward(layers, new X86CrossEntropy());
+	FeedForward *ff = new FeedForward(layers, new CrossEntropy());
 
 	nnet_float *features, *labels;
 	cifar10(argv[1], &features, &labels);
 
 	nnet_float *patches = nnet_malloc(24 * 24 * 3 * 50000);
 
-	cout << "Starting..." << endl;
+	cout << ff->toString() << endl;
 
-	for(size_t i = 0; i < 120; i++)
+	for(size_t i = 0; i < 50; i++)
 	{
 		nnet_shuffle_instances(features, labels, 40000, 32 * 32 * 3, 10);
 

@@ -1,16 +1,16 @@
 #ifndef _CONVOLUTIONAL_HPP_
 #define _CONVOLUTIONAL_HPP_
 
-#include "X86ActivationFunction.hpp"
-#include "X86Layer.hpp"
-#include "X86UpdateRule.hpp"
+#include "ActivationFunction.hpp"
+#include "Layer.hpp"
+#include "UpdateRule.hpp"
 
 #include <fftw3.h>
 
-class X86Convolutional : public X86Layer
+class Convolutional : public Layer
 {
 	public:
-		X86Convolutional(std::size_t rank, const std::size_t *imageDims, const std::size_t *kernelDims, std::size_t inputs, std::size_t outputs, nnet_float initweight, X86ActivationFunction *func, X86UpdateRule *ur);
+		Convolutional(std::size_t rank, const std::size_t *imageDims, const std::size_t *kernelDims, std::size_t inputs, std::size_t outputs, nnet_float initweight, ActivationFunction *func, UpdateRule *ur);
 		void initialise() override;
 		void startBatch() override;
 		void endBatch() override;
@@ -19,6 +19,7 @@ class X86Convolutional : public X86Layer
 		void calculateGradients(const nnet_float *features) override;
 		void updateWeights(const unsigned int batchSize) override;
 		void updateBiases(const unsigned int batchSize) override;
+		std::string toString() const override;
 
 	protected:
 		std::size_t numInputChannels;
@@ -40,8 +41,8 @@ class X86Convolutional : public X86Layer
 		std::size_t *kernelDimensions;
 		std::size_t *outputDimensions;
 		nnet_float initWeight;
-		X86ActivationFunction *activationFunction;
-		X86UpdateRule *updateRule;
+		ActivationFunction *activationFunction;
+		UpdateRule *updateRule;
 };
 
 #endif

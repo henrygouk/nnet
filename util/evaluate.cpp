@@ -1,7 +1,7 @@
 #include "nnet/core.hpp"
-#include "nnet/x86/X86FeedForward.hpp"
+#include "nnet/FeedForward.hpp"
 
-nnet_float evaluate(X86FeedForward *ffnn, nnet_float *features, nnet_float *labels, size_t count, size_t num_features, size_t num_outputs)
+nnet_float evaluate(FeedForward *ffnn, nnet_float *features, nnet_float *labels, size_t count, size_t num_features, size_t num_outputs)
 {
 	nnet_float *output = nnet_malloc(10);
 	size_t correct = 0;

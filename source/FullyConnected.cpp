@@ -1,11 +1,13 @@
-#include "nnet/x86/X86ActivationFunction.hpp"
-#include "nnet/x86/X86FullyConnected.hpp"
-#include "nnet/x86/X86UpdateRule.hpp"
-#include "nnet/x86/vector.hpp"
+#include <sstream>
+
+#include "nnet/ActivationFunction.hpp"
+#include "nnet/FullyConnected.hpp"
+#include "nnet/UpdateRule.hpp"
+#include "nnet/vector.hpp"
 
 using namespace std;
 
-X86FullyConnected::X86FullyConnected(size_t inputs, size_t outputs, nnet_float initweight, X86ActivationFunction *func, X86UpdateRule *ur)
+FullyConnected::FullyConnected(size_t inputs, size_t outputs, nnet_float initweight, ActivationFunction *func, UpdateRule *ur)
 {
 	numInputs = inputs;
 	numOutputs = outputs;
@@ -16,7 +18,7 @@ X86FullyConnected::X86FullyConnected(size_t inputs, size_t outputs, nnet_float i
 	updateRule = ur;
 }
 
-void X86FullyConnected::initialise()
+void FullyConnected::initialise()
 {
 	//Initialise the weights
 	random_gaussian_vector(weights, numWeights, 0.0, initWeight);
@@ -25,7 +27,7 @@ void X86FullyConnected::initialise()
 	random_gaussian_vector(biases, numBiases, 0.0, initWeight);
 }
 
-void X86FullyConnected::forward(const nnet_float *features)
+void FullyConnected::forward(const nnet_float *features)
 {
 	//Multiply fetures by the weight matrix
 	matrix_vector_mul(weights, numOutputs, numInputs, features, activations);
@@ -37,13 +39,13 @@ void X86FullyConnected::forward(const nnet_float *features)
 	(*activationFunction)(activations, deltaActivations, numOutputs);
 }
 
-void X86FullyConnected::backward(nnet_float *bpDeltaErrors)
+void FullyConnected::backward(nnet_float *bpDeltaErrors)
 {
 	//Backpropagate the delta errors to the previous layer
 	matrix_trans_vector_mul(weights, numOutputs, numInputs, deltaErrors, bpDeltaErrors);
 }
 
-void X86FullyConnected::calculateGradients(const nnet_float *features)
+void FullyConnected::calculateGradients(const nnet_float *features)
 {
 	//Finish calculating the delta errors for this layer
 	vector_mul(deltaErrors, deltaActivations, deltaErrors, numOutputs);
@@ -58,12 +60,23 @@ void X86FullyConnected::calculateGradients(const nnet_float *features)
 	vector_accum(deltaBiases, deltaErrors, numOutputs);
 }
 
-void X86FullyConnected::updateWeights(const unsigned int batchSize)
+void FullyConnected::updateWeights(const unsigned int batchSize)
 {
 	updateRule->updateWeights(this, batchSize);
 }
 
-void X86FullyConnected::updateBiases(const unsigned int batchSize)
+void FullyConnected::updateBiases(const unsigned int batchSize)
 {
 	updateRule->updateBiases(this, batchSize);
+}
+
+string FullyConnected::toString() const
+{
+	stringstream output;
+	
+	output << "FullyConnected\n"
+		<< "\tInputs: " << numInputs << "\n"
+		<< "\tOutputs: " << numOutputs << "\n";
+
+	return output.str();
 }

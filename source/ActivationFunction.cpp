@@ -1,11 +1,11 @@
 #include <cfloat>
 #include <cmath>
 
-#include "nnet/x86/X86ActivationFunction.hpp"
+#include "nnet/ActivationFunction.hpp"
 
 using namespace std;
 
-void X86Logistic::operator()(nnet_float *activations, nnet_float *deltaActivations, size_t numActivations) const
+void Logistic::operator()(nnet_float *activations, nnet_float *deltaActivations, size_t numActivations) const
 {
 	for(size_t i = 0; i < numActivations; i++)
 	{
@@ -14,7 +14,7 @@ void X86Logistic::operator()(nnet_float *activations, nnet_float *deltaActivatio
 	}
 }
 
-void X86Softmax::operator()(nnet_float *activations, nnet_float *deltaActivations, size_t numActivations) const
+void Softmax::operator()(nnet_float *activations, nnet_float *deltaActivations, size_t numActivations) const
 {
 	nnet_float maxval = -FLT_MAX;
 	nnet_float sum = 0.0;
@@ -39,7 +39,7 @@ void X86Softmax::operator()(nnet_float *activations, nnet_float *deltaActivation
 	}
 }
 
-void X86RectifiedLinear::operator()(nnet_float *activations, nnet_float *deltaActivations, size_t numActivations) const
+void RectifiedLinear::operator()(nnet_float *activations, nnet_float *deltaActivations, size_t numActivations) const
 {
 	for(size_t i = 0; i < numActivations; i++)
 	{

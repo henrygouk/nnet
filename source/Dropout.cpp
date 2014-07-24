@@ -1,8 +1,11 @@
 #include <cstdlib>
+#include <sstream>
 
-#include "nnet/x86/X86Dropout.hpp"
+#include "nnet/Dropout.hpp"
 
-X86Dropout::X86Dropout(size_t numinputs, nnet_float prob)
+using namespace std;
+
+Dropout::Dropout(size_t numinputs, nnet_float prob)
 {
 	dropoutProbability = prob;
 	forwardScalar = (1.0 - prob);
@@ -12,12 +15,12 @@ X86Dropout::X86Dropout(size_t numinputs, nnet_float prob)
 	numBiases = 0;
 }
 
-void X86Dropout::initialise()
+void Dropout::initialise()
 {
 	
 }
 
-void X86Dropout::forwardTrain(const nnet_float *features)
+void Dropout::forwardTrain(const nnet_float *features)
 {
 	for(size_t i = 0; i < numInputs; i++)
 	{
@@ -32,7 +35,7 @@ void X86Dropout::forwardTrain(const nnet_float *features)
 	}
 }
 
-void X86Dropout::forward(const nnet_float *features)
+void Dropout::forward(const nnet_float *features)
 {
 	for(size_t i = 0; i < numInputs; i++)
 	{
@@ -40,10 +43,20 @@ void X86Dropout::forward(const nnet_float *features)
 	}
 }
 
-void X86Dropout::backward(nnet_float *bpDeltaErrors)
+void Dropout::backward(nnet_float *bpDeltaErrors)
 {
 	for(size_t i = 0; i < numInputs; i++)
 	{
 		bpDeltaErrors[i] = deltaErrors[i];
 	}
+}
+
+string Dropout::toString() const
+{
+	stringstream output;
+
+	output << "Dropout\n"
+		<< "\tPropability: " << dropoutProbability << "\n";
+
+	return output.str();
 }

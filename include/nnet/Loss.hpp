@@ -1,24 +1,29 @@
 #ifndef _LOSS_HPP_
 #define _LOSS_HPP_
 
-#include "../types.hpp"
+#include <string>
 
-class X86Loss
+#include "types.hpp"
+
+class Loss
 {
 	public:
 		virtual void loss(const nnet_float *hypothesis, const nnet_float *labels, nnet_float *deltaActivations, std::size_t length) = 0;
+		virtual std::string toString() const;
 };
 
-class X86SquaredError : public X86Loss
+class SquaredError : public Loss
 {
 	public:
 		void loss(const nnet_float *hypothesis, const nnet_float *labels, nnet_float *deltaActivations, std::size_t length) override;
+		std::string toString() const override;
 };
 
-class X86CrossEntropy : public X86Loss
+class CrossEntropy : public Loss
 {
 	public:
 		void loss(const nnet_float *hypothesis, const nnet_float *labels, nnet_float *deltaActivations, std::size_t length) override;
+		std::string toString() const override;
 };
 
 #endif

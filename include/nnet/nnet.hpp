@@ -3,13 +3,13 @@
 
 #include "nnet/core.hpp"
 #include "nnet/types.hpp"
-#include "nnet/x86/X86ActivationFunction.hpp"
-#include "nnet/x86/X86Convolutional.hpp"
-#include "nnet/x86/X86Dropout.hpp"
-#include "nnet/x86/X86FeedForward.hpp"
-#include "nnet/x86/X86FullyConnected.hpp"
-#include "nnet/x86/X86Loss.hpp"
-#include "nnet/x86/X86MaxPool.hpp"
-#include "nnet/x86/X86UpdateRule.hpp"
+#include "nnet/ActivationFunction.hpp"
+#include "nnet/Convolutional.hpp"
+#include "nnet/Dropout.hpp"
+#include "nnet/FeedForward.hpp"
+#include "nnet/FullyConnected.hpp"
+#include "nnet/Loss.hpp"
+#include "nnet/MaxPool.hpp"
+#include "nnet/UpdateRule.hpp"
 
 #endif

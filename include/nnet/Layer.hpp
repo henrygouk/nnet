@@ -1,12 +1,14 @@
 #ifndef _LAYER_HPP_
 #define _LAYER_HPP_
 
-#include "../types.hpp"
+#include <string>
 
-class X86Layer
+#include "types.hpp"
+
+class Layer
 {
 	public:
-		virtual ~X86Layer();
+		virtual ~Layer();
 		virtual void initialise() = 0;
 		virtual void forwardTrain(const nnet_float *features);
 		virtual void forward(const nnet_float *features) = 0;
@@ -16,6 +18,7 @@ class X86Layer
 		virtual void updateBiases(const unsigned int batchSize);
 		virtual void startBatch();
 		virtual void endBatch();
+		virtual std::string toString() const;
 		virtual std::size_t weightsSize() const;
 		virtual std::size_t biasesSize() const;
 		virtual std::size_t inputsSize() const;

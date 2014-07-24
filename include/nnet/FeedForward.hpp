@@ -3,17 +3,18 @@
 
 #include <vector>
 
-#include "X86Layer.hpp"
-#include "X86Loss.hpp"
-#include "../types.hpp"
+#include "Layer.hpp"
+#include "Loss.hpp"
+#include "types.hpp"
 
-class X86FeedForward
+class FeedForward
 {
 	public:
-		X86FeedForward(const std::vector<X86Layer *> &layervec, X86Loss *lf);
-		virtual ~X86FeedForward();
+		FeedForward(const std::vector<Layer *> &layervec, Loss *lf);
+		virtual ~FeedForward();
 		void train(const nnet_float *features, const nnet_float *labels, const std::size_t numInstances, std::uint32_t epochs, std::uint32_t batchSize);
 		void predict(const nnet_float *features, nnet_float *labels);
+		std::string toString() const;
 
 	private:
 		std::uint32_t numFeatures;
@@ -21,9 +22,9 @@ class X86FeedForward
 		std::size_t numWeights;
 		std::size_t numBiases;
 		std::size_t numActivations;
-		X86Loss *lossFunction;
+		Loss *lossFunction;
 
-		std::vector<X86Layer *> layers;
+		std::vector<Layer *> layers;
 		nnet_float *hypothesis;
 		nnet_float *weights;
 		nnet_float *deltaWeights;
@@ -34,7 +35,7 @@ class X86FeedForward
 		nnet_float *deltaErrors;
 
 		void forward(const nnet_float *features);
-		void backward(const nnet_float *features, const nnet_float *deltaErrors);
+		void backward(const nnet_float *features);
 		void update(const unsigned int batchSize);
 };
 

@@ -1,12 +1,13 @@
 #include <cstring>
+#include <sstream>
 
-#include "nnet/x86/X86Convolutional.hpp"
-#include "nnet/x86/vector.hpp"
+#include "nnet/Convolutional.hpp"
+#include "nnet/vector.hpp"
 #include "nnet/core.hpp"
 
 using namespace std;
 
-X86Convolutional::X86Convolutional(size_t rank, const size_t *inputDims, const size_t *kernelDims, size_t inputs, size_t outputs, nnet_float initweight, X86ActivationFunction *func, X86UpdateRule *ur)
+Convolutional::Convolutional(size_t rank, const size_t *inputDims, const size_t *kernelDims, size_t inputs, size_t outputs, nnet_float initweight, ActivationFunction *func, UpdateRule *ur)
 {
 	numInputChannels = inputs;
 	numOutputChannels = outputs;
@@ -52,10 +53,9 @@ X86Convolutional::X86Convolutional(size_t rank, const size_t *inputDims, const s
 	frequencyInputs = nnet_malloc(frequencyVolume * inputs);
 	frequencyDeltaErrors = nnet_malloc(frequencyVolume * outputs);
 	frequencyDeltaWeights = nnet_malloc(frequencyVolume * inputs * outputs);
-	fixedFilter = nnet_malloc(frequencyVolume);
 }
 
-void X86Convolutional::initialise()
+void Convolutional::initialise()
 {
 	//Initialise the weights
 	random_gaussian_vector(weights, numWeights, 0.0, initWeight);
@@ -82,7 +82,7 @@ void X86Convolutional::initialise()
 	nnet_free(filter);
 }
 
-void X86Convolutional::startBatch()
+void Convolutional::startBatch()
 {
 	nnet_float *ws = weights;
 	nnet_float *fws = frequencyWeights;
@@ -92,7 +92,6 @@ void X86Convolutional::startBatch()
 	{
 		pad(tensorRank, ws, kernelDimensions, padded, inputDimensions);
 		fftwf_execute_dft_r2c(forwardTransform, padded, (fftwf_complex *)fws);
-		vector_complex_mul(fws, fixedFilter, frequencyVolume / 2);
 		memset(fdws, 0, sizeof(nnet_float) * frequencyVolume);
 		ws += kernelVolume;
 		fws += frequencyVolume;
@@ -100,7 +99,7 @@ void X86Convolutional::startBatch()
 	}
 }
 
-void X86Convolutional::endBatch()
+void Convolutional::endBatch()
 {
 	nnet_float normaliser = 1.0 / (nnet_float)inputVolume;
 
@@ -117,7 +116,7 @@ void X86Convolutional::endBatch()
 	}
 }
 
-void X86Convolutional::forward(const nnet_float *features)
+void Convolutional::forward(const nnet_float *features)
 {
 	nnet_float normaliser = 1.0 / (nnet_float)inputVolume;
 	nnet_float *ffs = frequencyInputs;
@@ -164,7 +163,7 @@ void X86Convolutional::forward(const nnet_float *features)
 	(*activationFunction)(activations, deltaActivations, numOutputs);
 }
 
-void X86Convolutional::backward(nnet_float *bpDeltaErrors)
+void Convolutional::backward(nnet_float *bpDeltaErrors)
 {
 	nnet_float *des = deltaErrors;
 	nnet_float *fdes = frequencyDeltaErrors;
@@ -200,7 +199,7 @@ void X86Convolutional::backward(nnet_float *bpDeltaErrors)
 	}
 }
 
-void X86Convolutional::calculateGradients(const nnet_float *features)
+void Convolutional::calculateGradients(const nnet_float *features)
 {
 	nnet_float *fdws = frequencyDeltaWeights;
 	nnet_float *fdes = frequencyDeltaErrors;
@@ -229,12 +228,23 @@ void X86Convolutional::calculateGradients(const nnet_float *features)
 	}
 }
 
-void X86Convolutional::updateWeights(const unsigned int batchSize)
+void Convolutional::updateWeights(const unsigned int batchSize)
 {
 	updateRule->updateWeights(this, batchSize);
 }
 
-void X86Convolutional::updateBiases(const unsigned int batchSize)
+void Convolutional::updateBiases(const unsigned int batchSize)
 {
 	updateRule->updateBiases(this, batchSize);
+}
+
+string Convolutional::toString() const
+{
+	stringstream output;
+
+	output << "Convolutional\n"
+		<< "\tInput Channels: " << numInputChannels << "\n"
+		<< "\tOutput Channels:" << numOutputChannels << "\n";
+
+	return output.str();
 }

@@ -1,13 +1,14 @@
-#include "nnet/core.hpp"
-#include "nnet/x86/X86MaxPool.hpp"
-#include "nnet/x86/vector.hpp"
-
 #include <cstring>
 #include <cfloat>
+#include <sstream>
+
+#include "nnet/core.hpp"
+#include "nnet/MaxPool.hpp"
+#include "nnet/vector.hpp"
 
 using namespace std;
 
-X86MaxPool::X86MaxPool(size_t rank, const size_t *inputDims, size_t chans, const size_t *poolDims)
+MaxPool::MaxPool(size_t rank, const size_t *inputDims, size_t chans, const size_t *poolDims)
 {
 	tensorRank = rank;
 	inputDimensions = new size_t[rank];
@@ -35,12 +36,12 @@ X86MaxPool::X86MaxPool(size_t rank, const size_t *inputDims, size_t chans, const
 	inputIndices = new size_t[outputVolume * channels];
 }
 
-void X86MaxPool::initialise()
+void MaxPool::initialise()
 {
 
 }
 
-void X86MaxPool::forward(const nnet_float *features)
+void MaxPool::forward(const nnet_float *features)
 {
 	nnet_float *output = activations;
 	
@@ -57,7 +58,7 @@ void X86MaxPool::forward(const nnet_float *features)
 	}
 }
 
-void X86MaxPool::backward(nnet_float *bpDeltaErrors)
+void MaxPool::backward(nnet_float *bpDeltaErrors)
 {
 	memset(bpDeltaErrors, 0, sizeof(nnet_float) * numInputs);
 
@@ -65,4 +66,14 @@ void X86MaxPool::backward(nnet_float *bpDeltaErrors)
 	{
 		bpDeltaErrors[inputIndices[i]] = deltaErrors[i];
 	}
+}
+
+string MaxPool::toString() const
+{
+	stringstream output;
+	
+	output << "MaxPool\n"
+		<< "\tChannels: " << channels << "\n";
+
+	return output.str();
 }
