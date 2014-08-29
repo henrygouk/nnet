@@ -1,6 +1,8 @@
+#include <cstring>
 #include <sstream>
 
 #include "nnet/ActivationFunction.hpp"
+#include "nnet/core.hpp"
 #include "nnet/FullyConnected.hpp"
 #include "nnet/UpdateRule.hpp"
 #include "nnet/vector.hpp"
@@ -16,15 +18,39 @@ FullyConnected::FullyConnected(size_t inputs, size_t outputs, nnet_float initwei
 	initWeight = initweight;
 	activationFunction = func;
 	updateRule = ur;
+
+	weights = nnet_malloc(numWeights);
+	deltaWeights = nnet_malloc(numWeights);
+	biases = nnet_malloc(numBiases);
+	deltaBiases = nnet_malloc(numBiases);
+	activations = nnet_malloc(numOutputs);
+	deltaActivations = nnet_malloc(numOutputs);
+	deltaErrors = nnet_malloc(numOutputs);
+	weightsMomentum = nnet_malloc(numWeights);
+	biasesMomentum = nnet_malloc(numBiases);
+
+	//Initialise the weights and biases
+	random_gaussian_vector(weights, numWeights, 0.0, initWeight);
+	random_gaussian_vector(biases, numBiases, 1.0, initWeight);
+
+	//Set the delta weights and biases to 0
+	memset(deltaWeights, 0, sizeof(nnet_float) * numWeights);
+	memset(deltaBiases, 0, sizeof(nnet_float) * numBiases);
+	memset(weightsMomentum, 0, sizeof(nnet_float) * numWeights);
+	memset(biasesMomentum, 0, sizeof(nnet_float) * numBiases);
 }
 
-void FullyConnected::initialise()
+FullyConnected::~FullyConnected()
 {
-	//Initialise the weights
-	random_gaussian_vector(weights, numWeights, 0.0, initWeight);
-
-	//Initialise the biases
-	random_gaussian_vector(biases, numBiases, 0.0, initWeight);
+	nnet_free(weights);
+	nnet_free(deltaWeights);
+	nnet_free(biases);
+	nnet_free(deltaBiases);
+	nnet_free(activations);
+	nnet_free(deltaActivations);
+	nnet_free(deltaErrors);
+	nnet_free(weightsMomentum);
+	nnet_free(biasesMomentum);
 }
 
 void FullyConnected::forward(const nnet_float *features)

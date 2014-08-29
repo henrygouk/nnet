@@ -1,0 +1,74 @@
+FeedForward
+	Loss: CrossEntropy
+
+Convolutional
+	Input Channels: 1
+	Output Channels:32
+
+MaxPool
+	Channels: 32
+
+FullyConnected
+	Inputs: 3200
+	Outputs: 10
+
+Epoch: 1	Training Accuracy: 0.881967	Test Accuracy: 0.8895
+Epoch: 2	Training Accuracy: 0.901633	Test Accuracy: 0.909
+Epoch: 3	Training Accuracy: 0.915917	Test Accuracy: 0.9229
+Epoch: 4	Training Accuracy: 0.92545	Test Accuracy: 0.9292
+Epoch: 5	Training Accuracy: 0.9337	Test Accuracy: 0.9369
+Epoch: 6	Training Accuracy: 0.941017	Test Accuracy: 0.9446
+Epoch: 7	Training Accuracy: 0.9442	Test Accuracy: 0.9476
+Epoch: 8	Training Accuracy: 0.950917	Test Accuracy: 0.9533
+Epoch: 9	Training Accuracy: 0.957517	Test Accuracy: 0.9604
+Epoch: 10	Training Accuracy: 0.9609	Test Accuracy: 0.963
+Epoch: 11	Training Accuracy: 0.964	Test Accuracy: 0.9668
+Epoch: 12	Training Accuracy: 0.9664	Test Accuracy: 0.9677
+Epoch: 13	Training Accuracy: 0.9687	Test Accuracy: 0.9697
+Epoch: 14	Training Accuracy: 0.968483	Test Accuracy: 0.9691
+Epoch: 15	Training Accuracy: 0.97245	Test Accuracy: 0.9721
+Epoch: 16	Training Accuracy: 0.973883	Test Accuracy: 0.974
+Epoch: 17	Training Accuracy: 0.97405	Test Accuracy: 0.9733
+Epoch: 18	Training Accuracy: 0.975717	Test Accuracy: 0.9755
+Epoch: 19	Training Accuracy: 0.976467	Test Accuracy: 0.9756
+Epoch: 20	Training Accuracy: 0.977583	Test Accuracy: 0.9777
+Epoch: 21	Training Accuracy: 0.9774	Test Accuracy: 0.9776
+Epoch: 22	Training Accuracy: 0.978833	Test Accuracy: 0.9782
+Epoch: 23	Training Accuracy: 0.978633	Test Accuracy: 0.979
+Epoch: 24	Training Accuracy: 0.979067	Test Accuracy: 0.9784
+Epoch: 25	Training Accuracy: 0.981017	Test Accuracy: 0.9805
+Epoch: 26	Training Accuracy: 0.979917	Test Accuracy: 0.9784
+Epoch: 27	Training Accuracy: 0.981817	Test Accuracy: 0.9818
+Epoch: 28	Training Accuracy: 0.9818	Test Accuracy: 0.9811
+Epoch: 29	Training Accuracy: 0.981733	Test Accuracy: 0.9806
+Epoch: 30	Training Accuracy: 0.983383	Test Accuracy: 0.9831
+Epoch: 31	Training Accuracy: 0.98315	Test Accuracy: 0.9823
+Epoch: 32	Training Accuracy: 0.983067	Test Accuracy: 0.9824
+Epoch: 33	Training Accuracy: 0.9837	Test Accuracy: 0.9824
+Epoch: 34	Training Accuracy: 0.984	Test Accuracy: 0.9834
+Epoch: 35	Training Accuracy: 0.984483	Test Accuracy: 0.9833
+Epoch: 36	Training Accuracy: 0.984367	Test Accuracy: 0.9835
+Epoch: 37	Training Accuracy: 0.985117	Test Accuracy: 0.9838
+Epoch: 38	Training Accuracy: 0.9846	Test Accuracy: 0.9828
+Epoch: 39	Training Accuracy: 0.9855	Test Accuracy: 0.9834
+Epoch: 40	Training Accuracy: 0.985967	Test Accuracy: 0.9844
+Epoch: 41	Training Accuracy: 0.986017	Test Accuracy: 0.9844
+Epoch: 42	Training Accuracy: 0.98575	Test Accuracy: 0.9845
+Epoch: 43	Training Accuracy: 0.9864	Test Accuracy: 0.9848
+Epoch: 44	Training Accuracy: 0.986067	Test Accuracy: 0.985
+Epoch: 45	Training Accuracy: 0.986783	Test Accuracy: 0.9851
+Epoch: 46	Training Accuracy: 0.986917	Test Accuracy: 0.9848
+Epoch: 47	Training Accuracy: 0.987433	Test Accuracy: 0.985
+Epoch: 48	Training Accuracy: 0.9866	Test Accuracy: 0.985
+Epoch: 49	Training Accuracy: 0.987367	Test Accuracy: 0.9852
+Epoch: 50	Training Accuracy: 0.98765	Test Accuracy: 0.9862
+Epoch: 51	Training Accuracy: 0.987117	Test Accuracy: 0.9856
+Epoch: 52	Training Accuracy: 0.987933	Test Accuracy: 0.9848
+Epoch: 53	Training Accuracy: 0.98835	Test Accuracy: 0.9853
+Epoch: 54	Training Accuracy: 0.987617	Test Accuracy: 0.9847
+Epoch: 55	Training Accuracy: 0.988417	Test Accuracy: 0.9854
+Epoch: 56	Training Accuracy: 0.988533	Test Accuracy: 0.9858
+Epoch: 57	Training Accuracy: 0.988317	Test Accuracy: 0.9846
+Epoch: 58	Training Accuracy: 0.988433	Test Accuracy: 0.9862
+Epoch: 59	Training Accuracy: 0.988433	Test Accuracy: 0.9858
+Epoch: 60	Training Accuracy: 0.989067	Test Accuracy: 0.9857

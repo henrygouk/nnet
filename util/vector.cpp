@@ -25,14 +25,21 @@ void test_valid_convolve(void)
 		kernel[i] = i + 1;
 	}
 
-	convolve_valid(input, 3, kernel, 3, output);
+	convolve_valid(input, new size_t[2] {3, 3}, kernel, new size_t[2] {3, 3}, output);
 
 	if(output[0] == 165.0)
 		passed++;
+	else
+	{
+		for(size_t i = 0; i < 4; i++)
+		{
+			printf("%f ", output[i]);
+		}
+	}
 
 	output[0] = 0.0;
 
-	convolve_valid(input, 3, kernel, 2, output);
+	convolve_valid(input, new size_t[2] {3, 3}, kernel, new size_t[2] {2, 2}, output);
 
 	if(output[0] == 23 && output[1] == 33 && output[2] == 53 && output[3] == 63)
 		passed++;
@@ -64,14 +71,14 @@ void test_valid_correlation(void)
 		kernel[i] = i + 1;
 	}
 
-	correlate_valid(input, 3, kernel, 3, output);
+	correlate_valid(input, new size_t[2] {3, 3}, kernel, new size_t[2] {3, 3}, output);
 
 	if(output[0] == 285)
 		passed++;
 
 	output[0] = 0.0;
 
-	correlate_valid(input, 3, kernel, 2, output);
+	correlate_valid(input, new size_t[2] {3, 3}, kernel, new size_t[2] {2, 2}, output);
 
 	if(output[0] == 37 && output[1] == 47 && output[2] == 67 && output[3] == 77)
 		passed++;
@@ -103,7 +110,7 @@ void test_full_correlation(void)
 		kernel[i] = i + 1;
 	}
 
-	correlate_full(input, 3, kernel, 3, output);
+	correlate_full(input, new size_t[2] {3, 3}, kernel, new size_t[2] {3, 3}, output);
 
 	int c = 0;
 
@@ -129,7 +136,7 @@ void test_fft_convolve_valid(void)
 	nnet_float *fimage = nnet_malloc(30);
 	nnet_float *kernel = nnet_malloc(25);
 	nnet_float *fkernel = nnet_malloc(30);
-	nnet_float *result = nnet_malloc(1);
+	nnet_float *result = nnet_malloc(9);
 	nnet_float *fresult = nnet_malloc(30);
 
 	fftwf_plan forward = fftwf_plan_dft_r2c_2d(5, 5, image, (fftwf_complex *)fimage, FFTW_ESTIMATE);
@@ -166,9 +173,8 @@ void test_fft_convolve_valid(void)
 
 	size_t inputDims[] = {5, 5};
 	size_t outputDims[] = {3, 3};
-	extract_valid_rotate(2, image, inputDims, result, outputDims, 1.0);
+	extract_valid(2, image, inputDims, result, outputDims);
 
-printf("%f\n", result[0]);
 	for(size_t y = 0; y < 3; y++) {
 		for(size_t x = 0;x < 3; x++){
 			printf("%f ", result[y * 3 + x]);

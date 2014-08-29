@@ -47,21 +47,28 @@ Convolutional::Convolutional(size_t rank, const size_t *inputDims, const size_t 
 	activationFunction = func;
 	updateRule = ur;
 
+	weights = nnet_malloc(weightsSize());
+	deltaWeights = nnet_malloc(weightsSize());
+	biases = nnet_malloc(biasesSize());
+	deltaBiases = nnet_malloc(biasesSize());
+	activations = nnet_malloc(outputsSize());
+	deltaActivations = nnet_malloc(outputsSize());
+	deltaErrors = nnet_malloc(outputsSize());
+	weightsMomentum = nnet_malloc(weightsSize());
+	biasesMomentum = nnet_malloc(biasesSize());
+
 	padded = nnet_malloc(inputVolume);
 	frequencyActivations = nnet_malloc(frequencyVolume);
 	frequencyWeights = nnet_malloc(frequencyVolume * inputs * outputs);
 	frequencyInputs = nnet_malloc(frequencyVolume * inputs);
 	frequencyDeltaErrors = nnet_malloc(frequencyVolume * outputs);
 	frequencyDeltaWeights = nnet_malloc(frequencyVolume * inputs * outputs);
-}
 
-void Convolutional::initialise()
-{
 	//Initialise the weights
 	random_gaussian_vector(weights, numWeights, 0.0, initWeight);
 
 	//Initialise the biases
-	random_gaussian_vector(biases, numBiases, 0.0, initWeight);
+	random_gaussian_vector(biases, numBiases, 1.0, initWeight);
 
 	int *dims = new int[tensorRank];
 
@@ -75,11 +82,38 @@ void Convolutional::initialise()
 
 	delete[] dims;
 
-	nnet_float *filter = nnet_malloc(inputVolume);
+	memset(deltaWeights, 0, sizeof(nnet_float) * numWeights);
+	memset(deltaBiases, 0, sizeof(nnet_float) * numBiases);
+	memset(weightsMomentum, 0, sizeof(nnet_float) * numWeights);
+	memset(biasesMomentum, 0, sizeof(nnet_float) * numBiases);
+}
 
-	
+Convolutional::~Convolutional()
+{
+	nnet_free(weights);
+	nnet_free(deltaWeights);
+	nnet_free(biases);
+	nnet_free(deltaBiases);
+	nnet_free(activations);
+	nnet_free(deltaActivations);
+	nnet_free(deltaErrors);
+	nnet_free(weightsMomentum);
+	nnet_free(biasesMomentum);
 
-	nnet_free(filter);
+	nnet_free(padded);
+	nnet_free(frequencyActivations);
+	nnet_free(frequencyWeights);
+	nnet_free(frequencyInputs);
+	nnet_free(frequencyDeltaErrors);
+	nnet_free(frequencyDeltaWeights);
+}
+
+void Convolutional::load(istream &is)
+{
+	Layer::load(is);
+
+	//Convert the filters into the frequency domain
+	startBatch();
 }
 
 void Convolutional::startBatch()
@@ -124,10 +158,12 @@ void Convolutional::forward(const nnet_float *features)
 	nnet_float *fws = frequencyWeights;
 	nnet_float *as = activations;
 
+	//Transform all the input channels into the frequency domain
 	for(size_t i = 0; i < numInputChannels; i++)
 	{
 		pad(tensorRank, features, inputDimensions, padded, inputDimensions);
 		fftwf_execute_dft_r2c(forwardTransform, padded, (fftwf_complex *)ffs);
+		
 		features += inputVolume;
 		ffs += frequencyVolume;
 	}
@@ -150,12 +186,7 @@ void Convolutional::forward(const nnet_float *features)
 
 		extract_valid(tensorRank, padded, inputDimensions, as, outputDimensions);
 
-		vector_scale(as, outputVolume, normaliser);
-
-		/*for(size_t j = 0; j < outputVolume; j++)
-		{
-			as[j] += biases[i];
-		}*/
+		vector_scale(as, outputVolume, normaliser);	
 
 		as += outputVolume;
 	}
@@ -171,10 +202,12 @@ void Convolutional::backward(nnet_float *bpDeltaErrors)
 	nnet_float *ftemp = frequencyActivations;
 	nnet_float normalisation = 1.0 / (nnet_float)inputVolume;
 
+	//Transform deltaError maps into the frequency domain
 	for(size_t i = 0; i < numOutputChannels; i++)
 	{
 		pad_rotate(tensorRank, des, outputDimensions, padded, inputDimensions);
 		fftwf_execute_dft_r2c(forwardTransform, padded, (fftwf_complex *)fdes);
+
 		des += outputVolume;
 		fdes += frequencyVolume;
 	}
@@ -225,7 +258,7 @@ void Convolutional::calculateGradients(const nnet_float *features)
 		}
 
 		des += outputVolume;
-	}
+	}	
 }
 
 void Convolutional::updateWeights(const unsigned int batchSize)

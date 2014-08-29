@@ -1,3 +1,5 @@
+#include <fstream>
+
 #include "nnet/Layer.hpp"
 
 using namespace std;
@@ -5,6 +7,16 @@ using namespace std;
 Layer::~Layer()
 {
 
+}
+
+void Layer::save(ostream &os)
+{
+	os.write((char *)weights, sizeof(nnet_float) * numWeights);
+}
+
+void Layer::load(istream &is)
+{
+	is.read((char *)weights, sizeof(nnet_float) * numWeights);
 }
 
 void Layer::forwardTrain(const nnet_float *features)

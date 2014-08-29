@@ -1,9 +1,10 @@
 #include "nnet/core.hpp"
 #include "nnet/FeedForward.hpp"
-
+#include <iostream>
+using namespace std;
 nnet_float evaluate(FeedForward *ffnn, nnet_float *features, nnet_float *labels, size_t count, size_t num_features, size_t num_outputs)
 {
-	nnet_float *output = nnet_malloc(10);
+	nnet_float *output = nnet_malloc(num_outputs);
 	size_t correct = 0;
 
 	for(size_t i = 0; i < count; i++)

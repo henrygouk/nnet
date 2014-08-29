@@ -489,68 +489,190 @@ void extract_full(nnet_float *input, size_t input_dims, nnet_float *output, size
 	}
 }
 
-void correlate_valid(nnet_float *image, size_t image_dims, nnet_float *kernel, size_t kernel_dims, nnet_float *output)
+void correlate_valid(const nnet_float *image, const size_t *image_dims, const nnet_float *kernel, const size_t *kernel_dims, nnet_float *output)
 {
-	size_t output_dims = image_dims - kernel_dims + 1;
+	/*size_t output_dims0 = image_dims[0] - kernel_dims[0] + 1;
+	size_t output_dims1 = image_dims[1] - kernel_dims[1] + 1;
 
-	for(size_t ky = 0; ky < kernel_dims; ky++)
+	for(size_t ky = 0; ky < kernel_dims[1]; ky++)
 	{
-		for(size_t kx = 0; kx < kernel_dims; kx++)
+		for(size_t kx = 0; kx < kernel_dims[0]; kx++)
 		{
-			for(size_t y = 0; y < output_dims; y++)
+			VECTOR kvec = VSET1(*kernel);
+
+			for(size_t y = 0; y < output_dims1; y++)
 			{
-				for(size_t x = 0; x < output_dims; x++)
+				size_t x = 0;
+
+				for(x = 0; x <= output_dims0 - VECTOR_LENGTH && output_dims0 >= VECTOR_LENGTH; x += VECTOR_LENGTH)
 				{
-					output[y * output_dims + x] += *kernel * image[(y + ky) * image_dims + (x + kx)];
+					VSTORE(output + y * output_dims0 + x, VADD(VLOAD(output + y * output_dims0 + x), VMUL(kvec, VLOAD(image + (y + ky) * image_dims[0] + (x + kx)))));
+				}
+					
+				for(; x < output_dims0; x++)
+				{
+					output[y * output_dims0 + x] += *kernel * image[(y + ky) * image_dims[0] + (x + kx)];
 				}
 			}
 
 			kernel++;
 		}
-	}
-}
+	}*/
 
-void convolve_valid(nnet_float *image, size_t image_dims, nnet_float *kernel, size_t kernel_dims, nnet_float *output)
-{
-	size_t output_dims = image_dims - kernel_dims + 1;
-	kernel += kernel_dims * kernel_dims;
-
-	for(size_t ky = 0; ky < kernel_dims; ky++)
+	const size_t output_dims0 = image_dims[0] - kernel_dims[0] + 1;
+	const size_t output_dims1 = image_dims[1] - kernel_dims[1] + 1;
+	
+	for(size_t y = 0; y < output_dims1; y++)
 	{
-		for(size_t kx = 0; kx < kernel_dims; kx++)
+		size_t x = 0;
+		
+		for(; x <= output_dims0 - VECTOR_LENGTH && output_dims0 >= VECTOR_LENGTH; x += VECTOR_LENGTH)
 		{
-			kernel--;
-
-			for(size_t y = 0; y < output_dims; y++)
+			VECTOR accum = VLOAD(output);
+			size_t offset = y * image_dims[0] + x;
+			
+			for(size_t ky = 0; ky < kernel_dims[1]; ky++)
 			{
-				for(size_t x = 0; x < output_dims; x++)
+				for(size_t kx = 0; kx < kernel_dims[0]; kx++)
 				{
-					output[y * output_dims + x] += *kernel * image[(y + ky) * image_dims + (x + kx)];
+					accum = VADD(accum, VMUL(VLOAD(image + ky * image_dims[0] + kx + offset), VSET1(kernel[ky * kernel_dims[0] + kx])));
 				}
 			}
+			
+			VSTORE(output, accum);
+			output += VECTOR_LENGTH;
+		}
+		
+		for(; x < output_dims0; x++)
+		{
+			nnet_float sum = *output;
+			size_t offset = y * image_dims[0] + x;
+			
+			for(size_t ky = 0; ky < kernel_dims[1]; ky++)
+			{
+				for(size_t kx = 0; kx < kernel_dims[0]; kx++)
+				{
+					sum += image[ky * image_dims[0] + kx + offset] * kernel[ky * kernel_dims[0] + kx];
+				}
+			}
+			
+			*output = sum;
+			output++;
 		}
 	}
 }
 
-void correlate_full(nnet_float *image, size_t image_dims, nnet_float *kernel, size_t kernel_dims, nnet_float *output)
+void convolve_valid(const nnet_float *image, const size_t *image_dims, const nnet_float *kernel, const size_t *kernel_dims, nnet_float *output)
 {
-	size_t output_dims = image_dims + kernel_dims - 1;
-	kernel += kernel_dims * kernel_dims;
+	/*size_t output_dims0 = image_dims[0] - kernel_dims[0] + 1;
+	size_t output_dims1 = image_dims[1] - kernel_dims[1] + 1;
+	kernel += kernel_dims[0] * kernel_dims[1];
 
-	for(size_t ky = 0; ky < kernel_dims; ky++)
+	for(size_t ky = 0; ky < kernel_dims[1]; ky++)
 	{
-		for(size_t kx = 0; kx < kernel_dims; kx++)
+		for(size_t kx = 0; kx < kernel_dims[0]; kx++)
 		{
 			kernel--;
-
-			for(size_t y = 0; y < image_dims; y++)
+			VECTOR kvec = VSET1(*kernel);
+			
+			for(size_t y = 0; y < output_dims1; y++)
 			{
-				for(size_t x = 0; x < image_dims; x++)
+				size_t x = 0;
+
+				for(x = 0; x <= output_dims0 - VECTOR_LENGTH && output_dims0 >= VECTOR_LENGTH; x += VECTOR_LENGTH)
 				{
-					output[(y + ky) * output_dims + x + kx] += *kernel * image[y * image_dims + x];
+					VSTORE(output + y * output_dims0 + x, VADD(VLOAD(output + y * output_dims0 + x), VMUL(kvec, VLOAD(image + (y + ky) * image_dims[0] + (x + kx)))));
+				}
+
+				for(; x < output_dims0; x++)
+				{
+					output[y * output_dims0 + x] += *kernel * image[(y + ky) * image_dims[0] + (x + kx)];
 				}
 			}
 		}
+	}*/
+
+	const size_t output_dims0 = image_dims[0] - kernel_dims[0] + 1;
+	const size_t output_dims1 = image_dims[1] - kernel_dims[1] + 1;
+	
+	for(size_t y = 0; y < output_dims1; y++)
+	{
+		size_t x = 0;
+		
+		for(; x <= output_dims0 - VECTOR_LENGTH && output_dims0 >= VECTOR_LENGTH; x += VECTOR_LENGTH)
+		{
+			VECTOR accum = VLOAD(output);
+			size_t offset = y * image_dims[0] + x;
+			
+			for(size_t ky = 0; ky < kernel_dims[1]; ky++)
+			{
+				for(size_t kx = 0; kx < kernel_dims[0]; kx++)
+				{
+					accum = VADD(accum, VMUL(VLOAD(image + ky * image_dims[0] + kx + offset), VSET1(kernel[(kernel_dims[1] - ky - 1) * kernel_dims[0] + kernel_dims[0] - kx - 1])));
+				}
+			}
+			
+			VSTORE(output, accum);
+			output += VECTOR_LENGTH;
+		}
+		
+		for(; x < output_dims0; x++)
+		{
+			nnet_float sum = *output;
+			size_t offset = y * image_dims[0] + x;
+			
+			for(size_t ky = 0; ky < kernel_dims[1]; ky++)
+			{
+				for(size_t kx = 0; kx < kernel_dims[0]; kx++)
+				{
+					sum += image[ky * image_dims[0] + kx + offset] * kernel[(kernel_dims[1] - ky - 1) * kernel_dims[0] + kernel_dims[0] - kx - 1];
+				}
+			}
+			
+			*output = sum;
+			output++;
+		}
+	}
+}
+
+void correlate_full(const nnet_float *image, const size_t *image_dims, const nnet_float *kernel, const size_t *kernel_dims, nnet_float *output)
+{
+	size_t output_dims0 = image_dims[0] + kernel_dims[0] - 1;
+	size_t output_dims1 = image_dims[1] + kernel_dims[1] - 1;
+	kernel += kernel_dims[0] * kernel_dims[1];	
+
+	for(size_t ky = 0; ky < kernel_dims[1]; ky++)
+	{
+		for(size_t kx = 0; kx < kernel_dims[0]; kx++)
+		{
+			kernel--;
+			VECTOR kvec = VSET1(*kernel);
+
+			for(size_t y = 0; y < image_dims[1]; y++)
+			{
+				size_t x = 0;
+
+				for(x = 0; x <= image_dims[0] - VECTOR_LENGTH && image_dims[0] >= VECTOR_LENGTH; x += VECTOR_LENGTH)
+				{
+					VSTORE(output + (y + ky) * output_dims0 + x + kx, VADD(VLOAD(output + (y +ky) * output_dims0 + x + kx), VMUL(kvec, VLOAD(image + y * image_dims[0] + x))));
+				}
+
+				for(; x < image_dims[0]; x++)
+				{
+					output[(y + ky) * output_dims0 + x + kx] += *kernel * image[y * image_dims[0] + x];
+				}
+			}
+		}
+	}	
+}
+
+void reverse(nnet_float *data, const size_t length)
+{
+	for(size_t i = 0; i < length / 2; i++)
+	{
+		nnet_float tmp = data[i];
+		data[i] = data[length - i - 1];
+		data[length - i - 1] = tmp;
 	}
 }
 

@@ -15,71 +15,30 @@ FeedForward::FeedForward(const vector<Layer *> &layervec, Loss *lf)
 	//Copy the vector of layers
 	layers = layervec;
 
-	numWeights = 0;
-	numBiases = 0;
-	numActivations = 0;
 	numFeatures = layers.front()->inputsSize();
 	numLabels = layers.back()->outputsSize();
-
-	//Find out how much memory we need to allocate
-	for(size_t l = 0; l < layers.size(); l++)
-	{
-		numWeights += layers[l]->weightsSize();
-		numBiases += layers[l]->biasesSize();
-		numActivations += layers[l]->outputsSize();
-	}
-
-	//Allocate memory
-	nnet_float *weightsPtr = weights = nnet_malloc(numWeights);
-	nnet_float *deltaWeightsPtr = deltaWeights = nnet_malloc(numWeights);
-	nnet_float *biasesPtr = biases = nnet_malloc(numBiases);
-	nnet_float *deltaBiasesPtr = deltaBiases = nnet_malloc(numBiases);
-	nnet_float *activationsPtr = activations = nnet_malloc(numActivations);
-	nnet_float *deltaActivationsPtr = deltaActivations = nnet_malloc(numActivations);
-	nnet_float *deltaErrorsPtr = deltaErrors = nnet_malloc(numActivations);
-	memset(deltaWeights, 0, sizeof(nnet_float) * numWeights);
-	memset(deltaBiases, 0, sizeof(nnet_float) * numBiases);
-
-	//Set up the pointers
-	for(size_t l = 0; l < layers.size(); l++)
-	{
-		layers[l]->weights = weightsPtr;
-		weightsPtr += layers[l]->weightsSize();
-
-		layers[l]->deltaWeights = deltaWeightsPtr;
-		deltaWeightsPtr += layers[l]->weightsSize();
-
-		layers[l]->biases = biasesPtr;
-		biasesPtr += layers[l]->biasesSize();
-
-		layers[l]->deltaBiases = deltaBiasesPtr;
-		deltaBiasesPtr += layers[l]->biasesSize();
-
-		layers[l]->activations = activationsPtr;
-		activationsPtr += layers[l]->outputsSize();
-
-		layers[l]->deltaActivations = deltaActivationsPtr;
-		deltaActivationsPtr += layers[l]->outputsSize();
-
-		layers[l]->deltaErrors = deltaErrorsPtr;
-		deltaErrorsPtr += layers[l]->outputsSize();
-
-		//Initialise this layer
-		layers[l]->initialise();
-	}
-
 	hypothesis = layers.back()->activations;
 }
 
 FeedForward::~FeedForward()
 {
-	nnet_free(weights);
-	nnet_free(deltaWeights);
-	nnet_free(biases);
-	nnet_free(deltaBiases);
-	nnet_free(activations);
-	nnet_free(deltaActivations);
-	nnet_free(deltaErrors);
+	
+}
+
+void FeedForward::load(istream &is)
+{
+	for(size_t i = 0; i < layers.size(); i++)
+	{
+		layers[i]->load(is);
+	}
+}
+
+void FeedForward::save(ostream &os)
+{
+	for(size_t i = 0; i < layers.size(); i++)
+	{
+		layers[i]->save(os);
+	}
 }
 
 void FeedForward::train(const nnet_float *features, const nnet_float *labels, const size_t numInstances, uint32_t epochs, uint32_t batchSize)
@@ -92,7 +51,7 @@ void FeedForward::train(const nnet_float *features, const nnet_float *labels, co
 		{
 			for_each(layers.begin(), layers.end(), [] (Layer *l) { l->startBatch(); });
 
-			for(uint32_t j = 0; j < batchSize; j++)
+			for(uint32_t j = 0; j < batchSize && (i + j) < numInstances; j++)
 			{
 				forward(features + (i + j) * numFeatures);
 				lossFunction->loss(hypothesis, labels + (i + j) * numLabels, dErrors, numLabels);
@@ -145,10 +104,6 @@ void FeedForward::update(const unsigned int batchSize)
 	for(size_t l = 0; l < layers.size(); l++)
 	{
 		layers[l]->updateWeights(batchSize);
-	}
-
-	for(size_t l = 0; l < layers.size(); l++)
-	{
 		layers[l]->updateBiases(batchSize);
 	}
 }

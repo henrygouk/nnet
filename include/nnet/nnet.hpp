@@ -10,6 +10,8 @@
 #include "nnet/FullyConnected.hpp"
 #include "nnet/Loss.hpp"
 #include "nnet/MaxPool.hpp"
+#include "nnet/SlidingFullyConnected.hpp"
+#include "nnet/SpatialConvolutional.hpp"
 #include "nnet/UpdateRule.hpp"
 
 #endif

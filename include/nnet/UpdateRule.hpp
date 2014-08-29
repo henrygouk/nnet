@@ -14,11 +14,13 @@ class UpdateRule
 class SGD : public UpdateRule
 {
 	public:
+		SGD();
 		void updateWeights(Layer *layer, const unsigned int batchSize) override;
 		void updateBiases(Layer *layer, const unsigned int batchSize) override;
 		nnet_float learningRate;
 		nnet_float momentumRate;
 		nnet_float l2DecayRate;
+		nnet_float maxNorm;
 };
 
 #endif

@@ -9,7 +9,8 @@ class Layer
 {
 	public:
 		virtual ~Layer();
-		virtual void initialise() = 0;
+		virtual void save(std::ostream &os);
+		virtual void load(std::istream &is);
 		virtual void forwardTrain(const nnet_float *features);
 		virtual void forward(const nnet_float *features) = 0;
 		virtual void backward(nnet_float *bpDeltaErrors) = 0;
@@ -31,6 +32,8 @@ class Layer
 		nnet_float *activations;
 		nnet_float *deltaActivations;
 		nnet_float *deltaErrors;
+		nnet_float *weightsMomentum;
+		nnet_float *biasesMomentum;
 
 	protected:
 		std::size_t numWeights;

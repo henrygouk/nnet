@@ -11,9 +11,10 @@ class Convolutional : public Layer
 {
 	public:
 		Convolutional(std::size_t rank, const std::size_t *imageDims, const std::size_t *kernelDims, std::size_t inputs, std::size_t outputs, nnet_float initweight, ActivationFunction *func, UpdateRule *ur);
-		void initialise() override;
+		~Convolutional();
 		void startBatch() override;
 		void endBatch() override;
+		void load(std::istream &is) override;
 		void forward(const nnet_float *features) override;
 		void backward(nnet_float *bpDeltaErrors) override;
 		void calculateGradients(const nnet_float *features) override;

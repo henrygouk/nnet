@@ -8,7 +8,7 @@ class Dropout : public Layer
 {
 	public:
 		Dropout(std::size_t numinputs, nnet_float prob);
-		void initialise() override;
+		~Dropout();
 		void forwardTrain(const nnet_float *features) override;
 		void forward(const nnet_float *features) override;
 		void backward(nnet_float *bpDeltaErrors) override;

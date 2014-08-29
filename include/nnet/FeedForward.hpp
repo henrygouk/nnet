@@ -12,6 +12,8 @@ class FeedForward
 	public:
 		FeedForward(const std::vector<Layer *> &layervec, Loss *lf);
 		virtual ~FeedForward();
+		void save(std::ostream &os);
+		void load(std::istream &is);
 		void train(const nnet_float *features, const nnet_float *labels, const std::size_t numInstances, std::uint32_t epochs, std::uint32_t batchSize);
 		void predict(const nnet_float *features, nnet_float *labels);
 		std::string toString() const;
@@ -19,20 +21,10 @@ class FeedForward
 	private:
 		std::uint32_t numFeatures;
 		std::uint32_t numLabels;
-		std::size_t numWeights;
-		std::size_t numBiases;
-		std::size_t numActivations;
 		Loss *lossFunction;
 
 		std::vector<Layer *> layers;
 		nnet_float *hypothesis;
-		nnet_float *weights;
-		nnet_float *deltaWeights;
-		nnet_float *biases;
-		nnet_float *deltaBiases;
-		nnet_float *activations;
-		nnet_float *deltaActivations;
-		nnet_float *deltaErrors;
 
 		void forward(const nnet_float *features);
 		void backward(const nnet_float *features);

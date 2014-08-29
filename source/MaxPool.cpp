@@ -34,11 +34,19 @@ MaxPool::MaxPool(size_t rank, const size_t *inputDims, size_t chans, const size_
 	numOutputs = outputVolume * channels;
 	numInputs = inputVolume * channels;
 	inputIndices = new size_t[outputVolume * channels];
+
+	activations = nnet_malloc(numOutputs);
+	deltaActivations = nnet_malloc(numOutputs);
+	deltaErrors = nnet_malloc(numOutputs);
+
+	memset(activations, 0, sizeof(nnet_float) * numOutputs);
 }
 
-void MaxPool::initialise()
+MaxPool::~MaxPool()
 {
-
+	nnet_free(activations);
+	nnet_free(deltaActivations);
+	nnet_free(deltaErrors);
 }
 
 void MaxPool::forward(const nnet_float *features)

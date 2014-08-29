@@ -7,7 +7,7 @@ class MaxPool : public Layer
 {
 	public:
 		MaxPool(std::size_t rank, const std::size_t *inputDims, std::size_t chans, const std::size_t *poolDims);
-		void initialise() override;
+		~MaxPool();
 		void forward(const nnet_float *features) override;
 		void backward(nnet_float *bpDeltaErrors) override;
 		std::string toString() const override;

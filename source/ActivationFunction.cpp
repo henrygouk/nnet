@@ -39,6 +39,39 @@ void Softmax::operator()(nnet_float *activations, nnet_float *deltaActivations, 
 	}
 }
 
+SlidingSoftmax::SlidingSoftmax(size_t numlbls, size_t stride)
+{
+	this->numLabels = numlbls;
+	this->stride = stride;
+}
+
+void SlidingSoftmax::operator()(nnet_float *activations, nnet_float *deltaActivations, size_t numActivations) const
+{
+	for(size_t s = 0; s < stride; s++)
+	{
+		nnet_float maxval = -FLT_MAX;
+		nnet_float sum = 0.0;
+
+		for(size_t i = 0; i < numLabels; i++)
+		{
+			maxval = max(activations[i * stride + s], maxval);
+		}
+
+		for(size_t i = 0; i < numLabels; i++)
+		{
+			activations[i * stride + s] = exp(activations[i * stride + s] - maxval);
+			sum += activations[i * stride + s];
+		}
+
+		sum = 1.0 / sum;
+
+		for(size_t i = 0; i < numLabels; i++)
+		{
+			activations[i * stride + s] *= sum;
+		}
+	}
+}
+
 void RectifiedLinear::operator()(nnet_float *activations, nnet_float *deltaActivations, size_t numActivations) const
 {
 	for(size_t i = 0; i < numActivations; i++)
