@@ -106,7 +106,7 @@ void SlidingFullyConnected::backward(nnet_float *bpDeltaErrors)
 
 		for(size_t j = 0; j < numOutputChannels; j++)
 		{
-			vector_scale_accum(bpDeltaErrors, deltaErrors, weights[i + j * numInputChannels], volume);
+			vector_scale_accum(bpDeltaErrors, deltaErrors + j * volume, weights[j * numInputChannels + i], volume);
 		}
 
 		bpDeltaErrors += volume;
@@ -119,6 +119,8 @@ void SlidingFullyConnected::calculateGradients(const nnet_float *features)
 
 	for(size_t i = 0; i < numOutputChannels; i++)
 	{
+		deltaBiases[i] += vector_sum(deltaErrors + i * volume, volume);
+
 		for(size_t j = 0; j < numInputChannels; j++)
 		{
 			deltaWeights[i * numInputChannels + j] += dot_product(features + j * volume, deltaErrors + i * volume, volume);
