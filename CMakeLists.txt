@@ -103,3 +103,6 @@ target_link_libraries(
 	fftw3f
 	nnet
 )
+
+install(TARGETS nnet DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+install(DIRECTORY include/nnet DESTINATION ${CMAKE_INSTALL_PREFIX}/include)

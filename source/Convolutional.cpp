@@ -203,14 +203,14 @@ void Convolutional::backward(nnet_float *bpDeltaErrors)
 	nnet_float normalisation = 1.0 / (nnet_float)inputVolume;
 
 	//Transform deltaError maps into the frequency domain
-	for(size_t i = 0; i < numOutputChannels; i++)
+	/*for(size_t i = 0; i < numOutputChannels; i++)
 	{
 		pad_rotate(tensorRank, des, outputDimensions, padded, inputDimensions);
 		fftwf_execute_dft_r2c(forwardTransform, padded, (fftwf_complex *)fdes);
 
 		des += outputVolume;
 		fdes += frequencyVolume;
-	}
+	}*/
 
 	for(size_t i = 0; i < numInputChannels; i++)
 	{
@@ -258,6 +258,7 @@ void Convolutional::calculateGradients(const nnet_float *features)
 		}
 
 		des += outputVolume;
+		fdes += frequencyVolume;
 	}	
 }
 
@@ -277,7 +278,7 @@ string Convolutional::toString() const
 
 	output << "Convolutional\n"
 		<< "\tInput Channels: " << numInputChannels << "\n"
-		<< "\tOutput Channels:" << numOutputChannels << "\n";
+		<< "\tOutput Channels: " << numOutputChannels << "\n";
 
 	return output.str();
 }
