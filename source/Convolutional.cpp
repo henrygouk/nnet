@@ -196,7 +196,6 @@ void Convolutional::forward(const nnet_float *features)
 
 void Convolutional::backward(nnet_float *bpDeltaErrors)
 {
-	nnet_float *des = deltaErrors;
 	nnet_float *fdes = frequencyDeltaErrors;
 	nnet_float *fws;
 	nnet_float *ftemp = frequencyActivations;

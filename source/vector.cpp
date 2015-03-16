@@ -33,8 +33,6 @@ static inline nnet_float VHADD(VECTOR vec)
 	return _mm_cvtss_f32(_mm256_castps256_ps128(vec));
 }
 
-static VECTOR conj_vector;
-
 static inline VECTOR VCMUL(VECTOR a, VECTOR b)
 {
 	__m256 b_flip = _mm256_shuffle_ps(b,b,0xB1);
@@ -638,7 +636,6 @@ void convolve_valid(const nnet_float *image, const size_t *image_dims, const nne
 void correlate_full(const nnet_float *image, const size_t *image_dims, const nnet_float *kernel, const size_t *kernel_dims, nnet_float *output)
 {
 	size_t output_dims0 = image_dims[0] + kernel_dims[0] - 1;
-	size_t output_dims1 = image_dims[1] + kernel_dims[1] - 1;
 	kernel += kernel_dims[0] * kernel_dims[1];	
 
 	for(size_t ky = 0; ky < kernel_dims[1]; ky++)
