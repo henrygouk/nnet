@@ -17,6 +17,6 @@ We use the CMake build system. Here is an example of how you might build the lib
 	make
 	sudo make install
 
-If your CPU has access to AVX instructions you should use the `-DENABLE_AVX=ON` when running cmake.
+If your CPU has access to AVX instructions you should use the `-DENABLE_AVX=ON` flag when running cmake.
 
-Similarly, if your CPU has access to FMA instruction the `-DENABLE_FMA=ON` flag should be used.
+Similarly, if your CPU has access to FMA instructions the `-DENABLE_FMA=ON` flag should be used.
