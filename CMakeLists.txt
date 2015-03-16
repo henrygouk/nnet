@@ -3,9 +3,14 @@ cmake_minimum_required(VERSION 2.6)
 project(nnet CXX)
 
 option(ENABLE_AVX "Enables the use of AVX instructions." OFF)
+option(ENABLE_FMA "Enables the use of FMA instructions." OFF)
 
 if(ENABLE_AVX)
-	add_definitions(-DHAVE_AVX -mavx -mavx2 -mfma)
+	add_definitions(-DHAVE_AVX -mavx)
+endif()
+
+if(ENABLE_FMA)
+	add_definitions(-DHAVE_FMA -mfma)
 endif()
 
 add_definitions(-O3 -Wall)

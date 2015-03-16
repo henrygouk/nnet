@@ -48,7 +48,13 @@ static inline VECTOR VCFMA(VECTOR c, VECTOR a, VECTOR b)
 	__m256 b_flip = _mm256_shuffle_ps(b,b,0xB1);
 	__m256 a_re = _mm256_shuffle_ps(a,a,0xA0);
 	__m256 a_im = _mm256_shuffle_ps(a,a,0xF5);
+
+#ifdef HAVE_FMA
 	__m256 arb = _mm256_fmadd_ps(a_re, b, c);
+#else
+	__m256 arb = _mm256_add_ps(_mm256_mul_ps(a_re, b), c);
+#endif
+	
 	__m256 aib = _mm256_mul_ps(a_im, b_flip);
 	return _mm256_addsub_ps(arb, aib);
 }
