@@ -37,5 +37,8 @@ add_library(
 	source/vector.cpp
 )
 
+configure_file(nnet-config.cmake.in nnet-config.cmake @ONLY)
+
 install(TARGETS nnet DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 install(DIRECTORY include/nnet DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+install(FILES "${PROJECT_BINARY_DIR}/nnet-config.cmake" DESTINATION ${CMAKE_INSTALL_PREFIX}/share/cmake/nnet)
