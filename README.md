@@ -1,4 +1,8 @@
 nnet
 ====
 
-High performance Artificial Neural Network library and utilities
+High performance Artificial Neural Network library.
+
+Dependencies:
+
+	* FFTW3
