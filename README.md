@@ -15,9 +15,9 @@ We use the CMake build system. Here is an example of how you might build the lib
 	cmake ..
 	make
 	
-Then to install:
+Then to install, run this as root:
 
-	sudo make install
+	make install
 
 If your CPU has access to AVX instructions you should use the `-DENABLE_AVX=ON` flag when running cmake.
 
