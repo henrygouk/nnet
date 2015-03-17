@@ -2,6 +2,9 @@
 #define _NNET_HPP_
 
 #include "nnet/core.hpp"
+#include "nnet/cifar10.hpp"
+#include "nnet/mnist.hpp"
+#include "nnet/stl10.hpp"
 #include "nnet/types.hpp"
 #include "nnet/ActivationFunction.hpp"
 #include "nnet/Convolutional.hpp"

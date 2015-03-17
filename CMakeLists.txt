@@ -23,6 +23,9 @@ include_directories(
 add_library(
 	nnet
 	source/core.cpp
+	source/mnist.cpp
+	source/cifar10.cpp
+	source/stl10.cpp
 	source/ActivationFunction.cpp
 	source/Convolutional.cpp
 	source/Dropout.cpp
