@@ -6,6 +6,8 @@ High performance Artificial Neural Network library.
 Dependencies:
 * FFTW3
 
+As you may have guessed from the dependency on FFTW, this library uses FFT convolutions by default.
+
 Building
 --------
 
