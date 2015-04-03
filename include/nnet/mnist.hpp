@@ -1,5 +1,5 @@
-#ifndef _MNIST_H_
-#define _MNIST_H_
+#ifndef _MNIST_HPP_
+#define _MNIST_HPP_
 
 #include <vector>
 

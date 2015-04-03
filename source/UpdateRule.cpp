@@ -1,5 +1,6 @@
 #include <cmath>
 #include <cfloat>
+#include <iostream>
 
 #include "nnet/UpdateRule.hpp"
 
@@ -17,11 +18,16 @@ void SGD::updateWeights(Layer *layer, const unsigned int batchSize)
 
 	for(size_t w = 0; w < layer->weightsSize(); w++)
 	{
-		layer->weightsMomentum[w] = layer->weightsMomentum[w] * momentumRate + (layer->weights[w] * l2DecayRate + layer->deltaWeights[w] * scalar) * learningRate;
+		layer->weightsMomentum[w] = layer->weightsMomentum[w] * momentumRate + (layer->deltaWeights[w] * scalar + layer->weights[w] * l2DecayRate) * learningRate;
 		layer->weights[w] -= layer->weightsMomentum[w];
 		layer->deltaWeights[w] = 0.0;
 		
 		norm += layer->weights[w] * layer->weights[w];
+	}
+
+	if(isnan(norm))
+	{
+		cerr << "NaN detected!" << endl;
 	}
 
 	norm = sqrt(norm);

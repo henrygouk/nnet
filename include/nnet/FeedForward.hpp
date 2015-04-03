@@ -17,6 +17,8 @@ class FeedForward
 		void train(const nnet_float *features, const nnet_float *labels, const std::size_t numInstances, std::uint32_t epochs, std::uint32_t batchSize);
 		void predict(const nnet_float *features, nnet_float *labels);
 		std::string toString() const;
+		size_t outputsSize() const;
+		const std::vector<Layer *> &getLayers() const;
 
 	private:
 		std::uint32_t numFeatures;

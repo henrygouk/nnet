@@ -11,6 +11,8 @@ void loadImages(const char *filename, vector<nnet_float> &features)
 
 	ifstream inputFile(filename, ios::binary);
 
+	features.reserve(bufSize * 100000);
+
 	while(true)
 	{
 		inputFile.read((char *)buf, bufSize);
@@ -46,7 +48,7 @@ void loadLabels(const char *filename, vector<nnet_float> &labels)
 
 	while(true)
 	{
-		inputFile.get(c);
+		inputFile.read(&c, 1);
 
 		if(inputFile.eof())
 		{
@@ -97,15 +99,17 @@ size_t loadStl10(const vector<const char *> &filenames, vector<nnet_float> &feat
 {
 	//Load the labelled images into the features vector
 	loadImages(filenames[0], features);
+	loadImages(filenames[1], features);
 
 	//Load the labels
-	loadLabels(filenames[1], labels);
+	loadLabels(filenames[2], labels);
+	loadLabels(filenames[3], labels);
 
 	//Load the unlabelled images
-	loadImages(filenames[2], unlabelled);
+	loadImages(filenames[4], unlabelled);
 
 	//Load the fold indices
-	loadIndices(filenames[3], indices);
+	loadIndices(filenames[5], indices);
 
 	return labels.size() / 10;
 }

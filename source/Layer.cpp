@@ -12,11 +12,13 @@ Layer::~Layer()
 void Layer::save(ostream &os)
 {
 	os.write((char *)weights, sizeof(nnet_float) * numWeights);
+	os.write((char *)biases, sizeof(nnet_float) * numBiases);
 }
 
 void Layer::load(istream &is)
 {
 	is.read((char *)weights, sizeof(nnet_float) * numWeights);
+	is.read((char *)biases, sizeof(nnet_float) * numBiases);
 }
 
 void Layer::forwardTrain(const nnet_float *features)

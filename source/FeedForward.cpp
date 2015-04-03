@@ -120,3 +120,13 @@ string FeedForward::toString() const
 
 	return output;
 }
+
+size_t FeedForward::outputsSize() const
+{
+	return layers[layers.size() - 1]->outputsSize();
+}
+
+const vector<Layer *> &FeedForward::getLayers() const
+{
+	return layers;
+}

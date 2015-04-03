@@ -1,17 +1,18 @@
 #include <fstream>
+#include <iostream>
 
 #include "nnet/cifar10.hpp"
 
 using namespace std;
 
-size_t loadCifar10(const vector<const char *> &filenames, vector<nnet_float> &features, vector<nnet_float> &labels)
+size_t loadCifar10(const vector<string> &filenames, vector<nnet_float> &features, vector<nnet_float> &labels)
 {
 	size_t bufSize = 32 * 32 * 3 + 1;
 	unsigned char *buf = new unsigned char[bufSize];
 
 	for(size_t i = 0; i < filenames.size(); i++)
 	{
-		ifstream inputFile(filenames[i], ios::binary);
+		ifstream inputFile(filenames[i].c_str(), ios::binary);
 
 		while(true)
 		{
@@ -22,14 +23,14 @@ size_t loadCifar10(const vector<const char *> &filenames, vector<nnet_float> &fe
 				break;
 			}
 
-			for(size_t j = 0; j < bufSize - 1; j++)
+			for(size_t j = 1; j < bufSize; j++)
 			{
-				features.push_back(buf[j]);
+				features.push_back((nnet_float)buf[j] / 255.0);
 			}
 
 			for(size_t j = 0; j < 10; j++)
 			{
-				if(buf[bufSize - 1] == j)
+				if(buf[0] == j)
 				{
 					labels.push_back(1.0);
 				}
