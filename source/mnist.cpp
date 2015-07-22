@@ -15,10 +15,11 @@ nnet_float *load_floats(const char *filename, size_t length, size_t offset, int 
 	unsigned char *bytedata = new unsigned char[length + offset];
 	nnet_float *data = nnet_malloc(length);
 
-	size_t ret = fread(bytedata, length + offset, 1, fd);
+	size_t ret = fread(bytedata, 1, length + offset, fd);
 
 	if(ret < length + offset)
 	{
+		cerr << filename << " " << ferror(fd) <<  endl;
 		cerr << "load_floats() Warning: read " << ret << " bytes, expected " << length + offset << endl;
 	}
 

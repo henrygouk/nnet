@@ -40,6 +40,18 @@ add_library(
 	source/vector.cpp
 )
 
+add_executable(
+	mnistcnn
+	examples/mnistcnn.cpp
+	examples/evaluate.cpp
+)
+
+target_link_libraries(
+	mnistcnn
+	nnet
+	fftw3f
+)
+
 configure_file(nnet-config.cmake.in nnet-config.cmake @ONLY)
 
 install(TARGETS nnet DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
