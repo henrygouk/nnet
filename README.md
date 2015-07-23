@@ -37,3 +37,10 @@ The first four files are the input MNIST data files from Yann LeCun's website [2
 [1] Scherer, D., Müller, A., & Behnke, S. (2010). Evaluation of pooling operations in convolutional architectures for object recognition. In Artificial Neural Networks–ICANN 2010 (pp. 92-101). Springer Berlin Heidelberg.
 
 [2] http://yann.lecun.com/exdb/mnist/
+
+Reference
+---------
+
+Please cite the following reference in papers using this library:
+
+Gouk, H. G., & Blake, A. M. (2014, November). Fast Sliding Window Classification with Convolutional Neural Networks. In Proceedings of the 29th International Conference on Image and Vision Computing New Zealand (p. 114). ACM.

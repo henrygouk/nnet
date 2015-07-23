@@ -206,7 +206,6 @@ void vector_complex_fma(nnet_float *accum, const nnet_float *a, const nnet_float
 
 	for(; i <= length - (VECTOR_LENGTH >> 1) && length >= (VECTOR_LENGTH >> 1); i += (VECTOR_LENGTH >> 1))
 	{
-		//VSTORE(accum, VADD(VLOAD(accum), VCMUL(VLOAD(a), VLOAD(b))));
 		VSTORE(accum, VCFMA(VLOAD(accum), VLOAD(a), VLOAD(b)));
 		accum += VECTOR_LENGTH;
 		a += VECTOR_LENGTH;
