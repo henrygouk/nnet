@@ -52,6 +52,18 @@ target_link_libraries(
 	fftw3f
 )
 
+add_executable(
+	cifar10cnn
+	examples/cifar10cnn.cpp
+	examples/evaluate.cpp
+)
+
+target_link_libraries(
+	cifar10cnn
+	nnet
+	fftw3f
+)
+
 configure_file(nnet-config.cmake.in nnet-config.cmake @ONLY)
 
 install(TARGETS nnet DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
