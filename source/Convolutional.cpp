@@ -68,7 +68,7 @@ Convolutional::Convolutional(size_t rank, const size_t *inputDims, const size_t 
 	random_gaussian_vector(weights, numWeights, 0.0, initWeight);
 
 	//Initialise the biases
-	random_gaussian_vector(biases, numBiases, 1.0, initWeight);
+	memset(biases, 0, sizeof(nnet_float) * numBiases);
 
 	int *dims = new int[tensorRank];
 

@@ -25,7 +25,7 @@ size_t loadCifar10(const vector<string> &filenames, vector<nnet_float> &features
 
 			for(size_t j = 1; j < bufSize; j++)
 			{
-				features.push_back((nnet_float)buf[j] / 255.0);
+				features.push_back((nnet_float)buf[j] / 128.0 - 1.0);
 			}
 
 			for(size_t j = 0; j < 10; j++)

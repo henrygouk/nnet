@@ -31,7 +31,7 @@ FullyConnected::FullyConnected(size_t inputs, size_t outputs, nnet_float initwei
 
 	//Initialise the weights and biases
 	random_gaussian_vector(weights, numWeights, 0.0, initWeight);
-	random_gaussian_vector(biases, numBiases, 1.0, initWeight);
+	memset(biases, 0, sizeof(nnet_float) * numBiases);
 
 	//Set the delta weights and biases to 0
 	memset(deltaWeights, 0, sizeof(nnet_float) * numWeights);

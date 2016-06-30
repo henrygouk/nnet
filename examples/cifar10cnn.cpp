@@ -28,12 +28,13 @@ int main(int argc, char **argv)
 	size_t poolDims[] = {2, 2};
 
 	vector<Layer *> layers;
-	layers.push_back(new Convolutional(2, l1InputDims, kernelDims, 3, 32, 0.3, rect, ur));
-	layers.push_back(new MaxPool(2, l2InputDims, 32, poolDims));
-	layers.push_back(new Convolutional(2, l3InputDims, kernelDims, 32, 32, 0.15, rect, ur));
-	layers.push_back(new MaxPool(2, l4InputDims, 32, poolDims));
-	layers.push_back(new FullyConnected(32 * l5InputDims[0] * l5InputDims[1], 64, 0.15, rect, ur));
-	layers.push_back(new FullyConnected(64, 10, 0.3, softmax, ur));
+	layers.push_back(new Convolutional(2, l1InputDims, kernelDims, 3, 64, 0.07, rect, ur));
+	layers.push_back(new MaxPool(2, l2InputDims, 64, poolDims));
+	layers.push_back(new Convolutional(2, l3InputDims, kernelDims, 64, 64, 0.035, rect, ur));
+	layers.push_back(new MaxPool(2, l4InputDims, 64, poolDims));
+	layers.push_back(new FullyConnected(64 * l5InputDims[0] * l5InputDims[1], 64, 0.035, rect, ur));
+	layers.push_back(new FullyConnected(64, 64, 0.1, rect, ur));
+	layers.push_back(new FullyConnected(64, 10, 0.15, softmax, ur));
 
 	FeedForward *ff = new FeedForward(layers, new CrossEntropy());
 
@@ -68,7 +69,7 @@ int main(int argc, char **argv)
 
 		struct timeval start, end;
 		gettimeofday(&start, 0);
-		ff->train(trainingFeatures, trainingLabels, numTrainingInsts, 1, 500);
+		ff->train(trainingFeatures, trainingLabels, numTrainingInsts, 1, 100);
 		gettimeofday(&end, 0);
 
 		nnet_float duration = (nnet_float)(end.tv_sec - start.tv_sec + (end.tv_usec - start.tv_usec) / 1000000.0);
